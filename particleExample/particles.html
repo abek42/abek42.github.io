@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Particle Systems Example - Three.JS</title>
+
+	<script>
+		window.addEventListener('error',function(e){
+		alert("An uncaught Javascript exception was encountered.\nPage may not behave as expected.\nCheck console for further details");
+		console.log("ERR: ",e.message, "at line:",e.lineno+":"+e.colno," in file:\n\t\t\t"+e.filename);
+		});		
+		console.log("DBG: Hello debug log");
+	</script>
+	<script src="js/three.min.js"></script>
+	<script src="js/helperFns.js"></script>
+	<script src="js/OrbitControls.js"></script>
+	<script src="js/mainLoop.js"></script>
+</head>
+<body style="font-family:Helvetica,Arial;font-size:12px;">
+	<div id="container" style="display:flex">
+	<div id="controls">
+		<span style="display:inline-block;width:80px"> Speed: </span><span>Slow <input id="speed" type="range" min="1" max="25" value="1" step="1" style="width:50px"> Fast</span><br>
+		<span style="display:inline-block;width:80px"> Twist: </span><input id="twist" type="checkbox" checked><br></span>
+		<span style="display:inline-block;width:80px"> Revolve: </span><input id="spin" type="checkbox" checked><br></span>
+		<input type="button" value="Restart" id="restart">		
+	</div>
+	<div id="container" style="display:flex;justify-content:center;flex-grow:2">
+		<div id="threejs" style="margin-top:10px;width:1000px;height:750px;border:5px solid silver"></div>
+	</div>
+	</div>
+	<script>
+		controls();
+		init();
+	</script>
+</body>
+</html>
