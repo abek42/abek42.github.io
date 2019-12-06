@@ -147,6 +147,19 @@ p.smallP{
 	align-self:center;
 }
 
+.slider{
+	text-align:center;
+	color:#EB6941;
+}
+.sliderInp{
+	color:#EB6941;
+}
+
+span.bigLet{
+	font-family:"Times New Roman";
+	font-size:xx-large;
+}
+
 </style>
 </head>
 <body onload="setDebugDiv();">
@@ -205,6 +218,10 @@ p.smallP{
 		<canvas id="finalImage" width="256" height="256" onclick="downloadCanvas(this);" style="cursor:pointer;align-self:center;border:1px solid #d3d3d3;width:256px;height:256px;min-width:256px;">
 			Your browser does not support the HTML5 canvas tag.
 		</canvas>
+		<p class="smallP">Scale overlay</p>
+		<div class="slider">
+			<span class="bigLet">&#9642;<span><input type="range" oninput="scale(this.value);" min="1" max="100" value="100" class="sliderInp" id="myRange" style="width:80%"><span class="bigLet">&#9724; </span>
+		</div>
 	</div>
 	<div class="block">
 		<p>Optional:</p>
@@ -215,7 +232,7 @@ p.smallP{
 			<label for="fileElem2"><img id="overlay" style="cursor:pointer;" width="256px" height="auto" src="overlay.png" alt="The Scream"></label>
 		</form>		
 		</div>
-		
+
 		<p>Note:</p>
 		<p class="smallP">
 			Only tested with Firefox and Chrome.<br>
@@ -224,6 +241,7 @@ p.smallP{
 		</p>
 	</div>
 <script>
+let o={};
 window.onload = function() {
  setDebugDiv();
 	 let hnd = setInterval(function(){
@@ -239,7 +257,7 @@ window.onload = function() {
 			updateCanvas();
 			if(activeRepeat.length==0)u.update=false;
 		}
-	},250);
+	},225);
 	let btns = document.getElementsByClassName("btn");
 	for(var i=0;i<btns.length;i++){
 		btns[i].addEventListener("mousedown",function(e){
@@ -256,6 +274,7 @@ window.onload = function() {
 			activeRepeat = "";
 		});
 	}
+	document.getElementById("myRange").value =100;
 	underlayCanvas.addEventListener("click",function(e){
 		let r = underlayCanvas.getBoundingClientRect();
 		let m = {x:e.clientX,y:e.clientY, cx:-r.left+e.clientX,cy:-r.top+e.clientY };
@@ -301,8 +320,14 @@ let underlay = document.getElementById("underlay");
 let ctxOut = cOut.getContext("2d");
 let ctxIn = cIn.getContext("2d");
 
-let u = {w:256,h:256,x:0,y:0,update:true};
+let u = {w:256,h:256,x:0,y:0,ar:1,update:true,oscale:256};
 let activeRepeat = "";
+
+function scale(val){
+	//console.log("DBG:>scale",val);
+	u.oscale = (val*256/100).toFixed(0)*1;
+	u.update = true;
+}
 
 function processDownEvt(){
 	//console.log("DBG:>processDownEvt",activeRepeat);
@@ -377,7 +402,10 @@ function updateCanvas(){
 		ctxOut.drawImage(underlay, u.ixl, u.iyt, u.clipHO, u.clipVO, 0, 0, u.clipHO*u.clipScaleO, u.clipVO*u.clipScaleO);	
 	}
 	let clipOverlay = overlay.naturalWidth>overlay.naturalHeight?overlay.naturalHeight:overlay.naturalWidth;
-	ctxOut.drawImage(overlay,0,0,clipOverlay,clipOverlay,0,0,256,256);
+	{
+		//if scale = x, (100-x)*256/2 = xl,yt
+	}
+	ctxOut.drawImage(overlay,0,0,clipOverlay,clipOverlay,(256-u.oscale)*0.5,(256-u.oscale)*0.5,u.oscale,u.oscale);
 }
 
 function updateUnderlayCanvas(){
@@ -446,6 +474,7 @@ function computeU(img){
 	}
 	U.step = Math.sqrt(U.w*U.h)/100;
 	U.update = true;
+	U.oscale = (document.getElementById("myRange").value*256/100).toFixed(0)*1;
 	//console.log(U);
 	return U;
 }
