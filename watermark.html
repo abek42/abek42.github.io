@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Maker</title>
+    <script>
+        function setDebugDiv(){
+            //$("reload").html(JSON.stringify(Date()).split("+")[0]);
+            document.getElementById("reload").innerHTML = JSON.stringify(Date()).split("+")[0];
+        }
+    </script>
+		<style>
+body{
+	font-family:verdana;
+}
+
+.my-form {
+  margin: 5px;
+  text-align:center;
+}
+
+.button {
+	display: inline-block;
+	padding: 5px;
+	background: #EB6941;
+	cursor: pointer;
+	border-radius: 5px;
+	border: 1px solid #C25331;
+	color: #fdf0ec;
+	font-size: smaller;
+}
+.button:hover {
+  background: #fdf0ec;
+  cursor: pointer;
+  color: #EB6941;
+  border-width: 1px 1px 2px 1px;
+}
+#fileElem {
+  display: none;
+}
+
+#row1, #row3 {
+	display: flex;
+	justify-content: space-between;
+}
+
+#r2Col1 , #r2Col3 {
+	display: flex;
+	justify-content: space-between;
+	flex-direction:column;
+}
+
+#row2 {
+	display: flex;
+	flex-direction: row;
+}
+
+.btn{
+	width:30px;
+	height:30px;
+	display:inline-block;
+	margin:2px;
+	font-size:large;
+	
+	background: #EB6941;
+	cursor: pointer;
+	border-radius: 5px;
+	border: 1px solid #C25331;
+	color: #fdf0ec;
+}
+
+.btn:hover{
+	background: #fdf0ec;
+	cursor: pointer;
+	border-radius: 5px;
+	border: 1px solid #C25331;
+	color: #EB6941;
+}
+
+.btnleft{
+	margin-left:34px;
+}
+
+.btnright{
+	margin-right:34px;
+}
+
+
+#build{
+	display:flex;
+	flex-direction:column;
+	align-items:center;	
+}
+
+@media only screen and (min-width: 1000px) {
+  #build {
+    flex-direction:row;
+	flex-wrap:wrap;
+	align-items:stretch;
+  }
+  .build{
+	min-width:370px;
+  }
+} 
+  
+.block{
+	display:flex;
+	flex-direction:column;
+	background-color:#fdf0ec;	
+	max-width:370px;
+	width:370px;
+	border-radius:5px;
+	margin:2px;
+	padding:5px;
+	font-size:small;
+}
+
+.canvasBlock {
+	background-color: white;
+	border: 1px solid #EB6941;
+	max-width: 326px;
+	align-self:center;
+}
+
+p{
+	
+	display:inline-block;
+	background-color: #EB6941;
+	color:#fdf0ec;
+	border-radius:3px;
+	padding:5px;
+	font-weight:bolder;
+	margin-bottom:0px;
+}
+p.smallP{
+	background-color:inherit;
+	font-weight:revert;
+	//font-size:smaller;
+	color:#EB6941;
+}
+
+.clip{
+	max-width:256px;
+	max-height:256px;
+	overflow:hidden;
+	align-self:center;
+}
+
+</style>
+</head>
+<body onload="setDebugDiv();">
+<div id="debug">
+	<input type="button" onclick="location.reload();" value="Reload"/>
+	<span id="reload">ERROR</span>
+
+	<!--input type="button" onclick="doNext();" value="Next" id="next"/-->
+</div>
+<div id="build">
+	<div class="block">
+		<p>Step 1: Select image to upload</p>
+		<form class="my-form">
+			<input type="file" id="fileElem" accept=".jpg, .png, .jpeg, .gif, .bmp|image/*" onchange="readURL(this.files,'underlay');">
+			<label class="button" for="fileElem">Browse</label>
+		</form>
+		<img src="" style="display:none;width:256;height:auto" id="underlay">
+	</div>
+	<div class="block">
+		<p>Step 2: Crop if required</p>
+		<p class="smallP">
+			<span>
+				Image is auto-cropped to 1:1 size<br>
+				Crop further if required.<br>
+				If crop area is not 1:1, best fit is applied
+			</span>
+		</p>
+		<div class="block canvasBlock">
+			<div id="row1">
+				<button class="btn btnleft" id="bl" onclick="crop('left');">&rarrb;</button>
+				<button class="btn btnright" id="br" onclick="crop('right');">&larrb;</button>
+			</div>
+			<div id="row2">
+				<div id="r2Col1">
+					<button class="btn btndn" id="bd" onclick="crop('down');">&DownArrowBar;</button>
+					<button class="btn btnup" id="bu"  onclick="crop('up');">&UpArrowBar;</button>
+				</div>
+				<canvas id="underlayCanvas" width="256" height="256" style="border:1px solid #d3d3d3;width:256px;height:256px;min-width:256px;">
+					Your browser does not support the HTML5 canvas tag.</canvas>
+				<div id="r2Col3">
+					<button class="btn btndn"  id="bd_" onclick="crop('down');">&DownArrowBar;</button>
+					<button class="btn" onclick="crop('vert');">&#9100;</button>
+					<button class="btn btnup"  id="bu_"  onclick="crop('up');">&UpArrowBar;</button>
+				</div>
+			</div>
+			<div id="row3">
+				<button class="btn btnleft"   id="bl_" onclick="crop('left');">&rarrb;</button>
+				<button class="btn" onclick="crop('horz');">&#9100;</button>
+				<button class="btn btnright"  id="br_" onclick="crop('right');">&larrb;</button>
+			</div>
+		</div>
+	</div>
+	<div class="block">
+		<p>Step 3: Download image for use</p>
+		<p class="smallP">Click on image below to download it</p>
+		<canvas id="finalImage" width="256" height="256" onclick="downloadCanvas(this);" style="cursor:pointer;align-self:center;border:1px solid #d3d3d3;width:256px;height:256px;min-width:256px;">
+			Your browser does not support the HTML5 canvas tag.
+		</canvas>
+	</div>
+	<div class="block">
+		<p>Optional:</p>
+		<p class="smallP">Click image below to update overlay image</p>
+		<div class="clip">
+		<form class="my-form">
+			<input type="file" id="fileElem2" accept=".png, .gif/*" onchange="readURL(this.files,'overlay');" style="display:none;">
+			<label for="fileElem2"><img id="overlay" style="cursor:pointer;" width="256px" height="auto" src="overlay.png" alt="The Scream"></label>
+		</form>		
+		</div>
+		
+		<p>Note:</p>
+		<p class="smallP">
+			Only tested with Firefox and Chrome.<br>
+			Overlay image is auto-cropped to 1:1<br>
+			Overlay image should be of type .png or .gif with transparency
+		</p>
+	</div>
+<script>
+window.onload = function() {
+ setDebugDiv();
+	 let hnd = setInterval(function(){
+		if(u.update){
+			processDownEvt();
+			if(isNaN(u.ar)){//something funky going on here
+				u = computeU(underlay);
+			}
+			if(typeof(o)==="undefined"){ 
+				o = computeU(overlay);
+			}
+			updateUnderlayCanvas();
+			updateCanvas();
+			if(activeRepeat.length==0)u.update=false;
+		}
+	},200);
+	let btns = document.getElementsByClassName("btn");
+	for(var i=0;i<btns.length;i++){
+		btns[i].addEventListener("mousedown",function(e){
+			console.log("btn>mousedn",e.target.id,e);
+			activeRepeat = e.target.id;
+			u.update = true;
+		});
+		btns[i].addEventListener("mouseout",function(e){
+			console.log("btn>mouseout",e.target.id,e);
+			activeRepeat = "";
+		});
+		btns[i].addEventListener("mouseup",function(e){
+			console.log("btn>mouseout",e.target.id,e);
+			activeRepeat = "";
+		});
+	}
+	underlayCanvas.addEventListener("click",function(e){
+		let r = underlayCanvas.getBoundingClientRect();
+		let m = {x:e.clientX,y:e.clientY, cx:-r.left+e.clientX,cy:-r.top+e.clientY };
+		console.log("canvas click>pre ",u.ixr, u.ixl );
+		//center of the vertical crop area
+		m.cx = fixClipping(m.cx, u.ixr, u.ixl, u.iScale,u.w);
+		m.cy = fixClipping(m.cy, u.iyb, u.iyt, u.iScale,u.h);
+		let iw = (u.ixr-u.ixl);
+		let ih = (u.iyb-u.iyt);
+		u.ixr = (m.cx)+0.5*iw;
+		u.ixl = (m.cx)-0.5*iw;
+		u.iyb = (m.cy)+0.5*ih;
+		u.iyt = (m.cy)-0.5*ih;
+		console.log("canvas click>post",u.ixr, u.ixl );
+		u.update = true;
+	})
+}
+
+function fixClipping(cy, iyb, iyt,scale,max){
+	let cNy = cy/scale;
+	//center of the crop area
+	let cV = 0.5*(iyb+iyt);
+	//height of vertical crop area
+	let hV = (iyb-iyt);
+	//if new center is used, will it cause the top or bottom edge to clip?
+	if(cNy+0.5*hV>max){//bottom clips
+		cNy = max-0.5*hV;
+	}
+	else{
+		if(cNy-0.5*hV<0){//top clips
+			cNy = 0.5*hV;
+		}
+	}
+	return cNy;
+}
+
+let cOut = document.getElementById("finalImage");
+let cIn = document.getElementById("underlayCanvas");
+
+let overlay = document.getElementById("overlay");
+let underlay = document.getElementById("underlay");
+
+let ctxOut = cOut.getContext("2d");
+let ctxIn = cIn.getContext("2d");
+
+let u = {w:256,h:256,x:0,y:0,update:true};
+let activeRepeat = "";
+
+function processDownEvt(){
+	console.log("DBG:>processDownEvt",activeRepeat);
+	if(activeRepeat.length==0) return;
+	switch(activeRepeat){
+		case "bl":
+		case "bl_":
+			crop("left"); break;
+		case "br":
+		case "br_":
+			crop("right"); break;
+		case "bd":
+		case "bd_":
+			crop("down"); break;
+		case "bu":
+		case "bu_":
+			crop("up"); break;			
+		default:
+			console.log("ERR: unknown Repeat state",activeRepeat);
+	}
+}
+
+function crop(dirn){
+	if(underlay.src==""){return;}
+	let uNew = {};
+	switch(dirn){
+		case "left":
+			if(u.ixl*u.iScale+1*u.step<u.ixr*u.iScale) (u.ixl+=u.iScale*u.step);
+			break;
+		case "right":
+			if(u.ixr*u.iScale-1*u.step>u.ixl*u.iScale) (u.ixr-=u.iScale*u.step);
+			//recompute=true;
+			break;
+		case "up":
+			if(u.iyb*u.iScale-1*u.step>u.iyt*u.iScale) (u.iyb-=u.iScale*u.step);
+			//recompute=true;
+			break;			
+		case "down":
+			if(u.iyt*u.iScale+1*u.step<u.iyb*u.iScale) (u.iyt+=u.iScale*u.step);
+			break;
+		case "vert":
+			//reset ycb and yct
+			uNew = computeU(underlay);
+			u.iyt = uNew.iyt; u.iyb = uNew.iyb;
+			break;
+		case "horz":
+			uNew = computeU(underlay);
+			u.ixr = uNew.ixr; u.ixl = uNew.ixl;
+			break;
+		default:
+			console.log("ERR:crop>",dirn);
+			return;
+	}
+	//if here something changed
+	
+	u.update=true;
+}
+
+function updateCanvas(){
+	ctxOut.clearRect(0, 0, cOut.width, cOut.height);;	
+	//console.log("DBG:",underlay.naturalHeight);
+	if(underlay.src!=""&&underlay.naturalHeight>0){
+		u.clipHO = u.ixr-u.ixl;
+		u.clipVO = u.iyb-u.iyt;
+		if(u.clipHO<=u.clipVO){//the horizontal clip area is smaller, we will draw it out as mapped to width of canvas
+		//we will let vertical clip area spill
+			u.clipScaleO = 256/u.clipHO;
+		}
+		else{
+			u.clipScaleO = 256/u.clipVO;
+		}
+		ctxOut.drawImage(underlay, u.ixl, u.iyt, u.clipHO, u.clipVO, 0, 0, u.clipHO*u.clipScaleO, u.clipVO*u.clipScaleO);	
+	}
+	let clipOverlay = overlay.naturalWidth>overlay.naturalHeight?overlay.naturalHeight:overlay.naturalWidth;
+	ctxOut.drawImage(overlay,0,0,clipOverlay,clipOverlay,0,0,256,256);
+}
+
+function updateUnderlayCanvas(){
+	ctxIn.clearRect(0, 0, cIn.width, cIn.height);
+	ctxIn.fillStyle = "#F0F0F0";
+	
+	for(let r=0;r<1+cIn.height/16;r++){
+		for(let c=0;c<1+cIn.width/16;c++){
+			if((r%2==0)&&(c%2==1)||(r%2==1)&&(c%2==0)){
+				ctxIn.fillRect(c*16, r*16, 16, 16);
+			}
+		}
+	}
+
+	if(underlay.src!=""&&underlay.naturalHeight>0){
+
+		console.log("DBG",u);
+		
+		ctxIn.drawImage(underlay,0,0,u.w,u.h, 0,0,u.w*u.iScale,u.h*u.iScale);
+		//marker-lines
+		drawLine(ctxIn,u.ixl*u.iScale,0,u.ixl*u.iScale,256);//left-vertical
+		drawLine(ctxIn,u.ixr*u.iScale,0,u.ixr*u.iScale,256);//right-vertical
+		drawLine(ctxIn,0,u.iyt*u.iScale,256,u.iyt*u.iScale);//top-horizontal
+		drawLine(ctxIn,0,u.iyb*u.iScale,256,u.iyb*u.iScale);//btm-horizontal
+		
+		//marker-lines
+		drawBox(ctxIn,u.ixr*u.iScale,0,256,256);
+		drawBox(ctxIn,0,u.iyb*u.iScale,256,256);
+		drawBox(ctxIn,0,0,256,u.iyt*u.iScale);
+		drawBox(ctxIn,0,0,u.ixl*u.iScale,256);
+		
+		//finally, a 1:1 bounding box
+		let clipBox = u.ixr-u.ixl;
+		if(clipBox > (u.iyb - u.iyt)){
+			clipBox = (u.iyb - u.iyt);
+		}
+		
+		ctxIn.beginPath();
+		ctxIn.lineWidth = "1";
+		ctxIn.strokeStyle = "red";
+		ctxIn.rect(u.ixl*u.iScale, u.iyt*u.iScale, clipBox*u.iScale, clipBox*u.iScale);
+		ctxIn.stroke();		
+	}
+}
+
+function computeU(img){
+	let U={};
+	console.log("computeU>",img.id);
+	U.w = img.naturalWidth;
+	U.h = img.naturalHeight;
+	U.ar = (U.w/U.h).toFixed(5)*1;
+	//1. if ar > 1, image is wide
+	if(U.ar>=1){
+		U.ixl = 0;
+		U.ixr = U.h; 
+		U.iyt = 0;
+		U.iyb = U.h;
+		U.iScale = 256/U.w;
+	}
+	else{
+		U.ixl = 0;
+		U.ixr = U.w; 
+		U.iyt = 0;
+		U.iyb = U.w;
+		U.iScale = 256/U.h;
+	}
+	U.step = Math.sqrt(U.w*U.h)/100;
+	U.update = true;
+	console.log(U);
+	return U;
+}
+
+function drawLine(ctx,xi,yi, xo,yo){
+	ctx.strokeStyle = "silver";
+	ctx.beginPath();
+	ctx.moveTo(xi, yi);
+	ctx.lineTo(xo, yo);
+	ctx.stroke(); 
+}
+
+function drawBox(context, xi,yi,xo,yo){
+	context.globalAlpha = 0.4; // set global alpha
+	context.beginPath();
+	context.rect(xi, yi, xo-xi, yo-yi);
+	context.fillStyle = "silver";
+	context.fill();
+	//reset alpha
+	context.globalAlpha = 1; // set global alpha
+}
+
+function readURL(input,forImg) {
+	console.log("reading",input,forImg);
+	if (input && input[0]) {
+		let reader = new FileReader();
+		switch(forImg){
+			case "underlay":
+				underlay.src = "";
+				break;
+			case "overlay":
+				overlay.src = "";
+				break;
+			default:
+				console.log("ERR: Unk dest",forImg);
+		}
+		
+		reader.onload = function (e) {
+			console.log("uploaded", e);
+			switch(forImg){
+				case "underlay":
+					underlay.src = e.target.result;
+					u=computeU(underlay);
+					break;
+				case "overlay":
+					overlay.src = e.target.result;
+					o=computeU(overlay);
+					u.update = true;
+					break;
+				default:
+					console.log("ERR: Unk dest",forImg);
+			}
+		};
+
+		reader.readAsDataURL(input[0]);
+	}
+}
+
+function downloadCanvas(cvs){
+	try{
+		var downloadHnd = document.createElement('a');
+		downloadHnd.setAttribute('href', cvs.toDataURL('image/png'));
+		downloadHnd.setAttribute('download', "merged.png");
+
+		if (document.createEvent) {
+			var event = document.createEvent('MouseEvents');
+			event.initEvent('click', true, true);
+			downloadHnd.dispatchEvent(event);
+		}
+		else {
+			console.log("DBG: downloadFile>downloadTriggered");
+			downloadHnd.click();
+		}
+	}
+	catch(e){
+		console.log("ERR:", e,cvs);
+		alert("Error: Your browser doesn't support download. Try taking a screenshot instead.\nError: "+e);
+		
+	}
+}
+
+
+
+</script>
+
+
+
+</body>
+</html>
