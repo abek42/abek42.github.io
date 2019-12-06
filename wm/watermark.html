@@ -7,6 +7,7 @@
         function setDebugDiv(){
             //$("reload").html(JSON.stringify(Date()).split("+")[0]);
             document.getElementById("reload").innerHTML = JSON.stringify(Date()).split("+")[0];
+			document.getElementById("reload").style = "display:none";
         }
     </script>
 		<style>
@@ -238,27 +239,27 @@ window.onload = function() {
 			updateCanvas();
 			if(activeRepeat.length==0)u.update=false;
 		}
-	},200);
+	},250);
 	let btns = document.getElementsByClassName("btn");
 	for(var i=0;i<btns.length;i++){
 		btns[i].addEventListener("mousedown",function(e){
-			console.log("btn>mousedn",e.target.id,e);
+			//console.log("btn>mousedn",e.target.id,e);
 			activeRepeat = e.target.id;
 			u.update = true;
 		});
 		btns[i].addEventListener("mouseout",function(e){
-			console.log("btn>mouseout",e.target.id,e);
+			//console.log("btn>mouseout",e.target.id,e);
 			activeRepeat = "";
 		});
 		btns[i].addEventListener("mouseup",function(e){
-			console.log("btn>mouseout",e.target.id,e);
+			//console.log("btn>mouseout",e.target.id,e);
 			activeRepeat = "";
 		});
 	}
 	underlayCanvas.addEventListener("click",function(e){
 		let r = underlayCanvas.getBoundingClientRect();
 		let m = {x:e.clientX,y:e.clientY, cx:-r.left+e.clientX,cy:-r.top+e.clientY };
-		console.log("canvas click>pre ",u.ixr, u.ixl );
+		//console.log("canvas click>pre ",u.ixr, u.ixl );
 		//center of the vertical crop area
 		m.cx = fixClipping(m.cx, u.ixr, u.ixl, u.iScale,u.w);
 		m.cy = fixClipping(m.cy, u.iyb, u.iyt, u.iScale,u.h);
@@ -268,7 +269,7 @@ window.onload = function() {
 		u.ixl = (m.cx)-0.5*iw;
 		u.iyb = (m.cy)+0.5*ih;
 		u.iyt = (m.cy)-0.5*ih;
-		console.log("canvas click>post",u.ixr, u.ixl );
+		//console.log("canvas click>post",u.ixr, u.ixl );
 		u.update = true;
 	})
 }
@@ -304,7 +305,7 @@ let u = {w:256,h:256,x:0,y:0,update:true};
 let activeRepeat = "";
 
 function processDownEvt(){
-	console.log("DBG:>processDownEvt",activeRepeat);
+	//console.log("DBG:>processDownEvt",activeRepeat);
 	if(activeRepeat.length==0) return;
 	switch(activeRepeat){
 		case "bl":
@@ -393,7 +394,7 @@ function updateUnderlayCanvas(){
 
 	if(underlay.src!=""&&underlay.naturalHeight>0){
 
-		console.log("DBG",u);
+		//console.log("DBG",u);
 		
 		ctxIn.drawImage(underlay,0,0,u.w,u.h, 0,0,u.w*u.iScale,u.h*u.iScale);
 		//marker-lines
@@ -424,7 +425,7 @@ function updateUnderlayCanvas(){
 
 function computeU(img){
 	let U={};
-	console.log("computeU>",img.id);
+	//console.log("computeU>",img.id);
 	U.w = img.naturalWidth;
 	U.h = img.naturalHeight;
 	U.ar = (U.w/U.h).toFixed(5)*1;
@@ -445,7 +446,7 @@ function computeU(img){
 	}
 	U.step = Math.sqrt(U.w*U.h)/100;
 	U.update = true;
-	console.log(U);
+	//console.log(U);
 	return U;
 }
 
@@ -468,7 +469,7 @@ function drawBox(context, xi,yi,xo,yo){
 }
 
 function readURL(input,forImg) {
-	console.log("reading",input,forImg);
+	//console.log("reading",input,forImg);
 	if (input && input[0]) {
 		let reader = new FileReader();
 		switch(forImg){
@@ -483,7 +484,7 @@ function readURL(input,forImg) {
 		}
 		
 		reader.onload = function (e) {
-			console.log("uploaded", e);
+			//console.log("uploaded", e);
 			switch(forImg){
 				case "underlay":
 					underlay.src = e.target.result;
@@ -515,7 +516,7 @@ function downloadCanvas(cvs){
 			downloadHnd.dispatchEvent(event);
 		}
 		else {
-			console.log("DBG: downloadFile>downloadTriggered");
+			//console.log("DBG: downloadFile>downloadTriggered");
 			downloadHnd.click();
 		}
 	}
