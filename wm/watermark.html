@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,user-scalable=no">
     <title>Image Maker</title>
     <script>
         function setDebugDiv(){
@@ -273,6 +274,22 @@ window.onload = function() {
 			//console.log("btn>mouseout",e.target.id,e);
 			activeRepeat = "";
 		});
+		
+		btns[i].addEventListener("touchstart",function(e){
+			activeRepeat = e.target.id;
+			u.update = true;
+			e.preventDefault();
+		});
+		btns[i].addEventListener("touchend",function(e){
+			//console.log("btn>mouseout",e.target.id,e);
+			activeRepeat = "";
+			e.preventDefault();
+		});
+		
+		/*btns[i].addEventListener("touchmove",function(e){
+		
+		});*/
+		
 	}
 	document.getElementById("myRange").value =100;
 	underlayCanvas.addEventListener("click",function(e){
