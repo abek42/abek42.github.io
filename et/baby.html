@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Baby-(re)Minder 1.0</title>
+    <script>
+        function setDebugDiv(){
+            //$("reload").html(JSON.stringify(Date()).split("+")[0]);
+            document.getElementById("reload").innerHTML = JSON.stringify(Date()).split("+")[0];
+        }
+    </script>
+	<script src='http://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+	<style>
+body{
+	font-family:Helvetica;
+	font-size:12pt;
+}
+#main{
+	display:flex;flex-direction:column;
+	background-color:white;align-content:stretch;width:100%;max-width:360px;min-height:640px;margin:auto;
+	border-radius:10px;
+}
+
+#showtimesince{background-color:#3DCD3D;}
+#showaddevent{background-color:#FF4C4C;}
+#showtimeline{background-color:#FF9D4C;}
+.btnBanner{border-radius:6px;color:whitesmoke;margin:2px;padding:10px;}
+.fourBlock {display: flex;	flex-direction: row;	flex-wrap: wrap;	justify-content: space-around;	background: #f9f9f9;	border-radius: 6px;	margin: 2px;	border: 2px solid #FF8F8F;	padding: 3px;	flex-grow: 0;}
+.iconBlock {	width: 140px;	border-radius: 80px;	border: 2px solid #E92525;	margin: 5px;	height: 140px;	background: #FFBABA;	display: flex;	flex-direction: column;	justify-content: center;	align-items: center;	color: #E92525;	cursor:pointer;}
+.icon  {	font-size: 48px;display:inline-block;width:80px;height:80px;border-radius:64px; text-align:center;border:1px solid #1DBB1D;background-color:#5CDD5C;}
+.icon3  {	font-size: xxx-large;}
+.aeText {	display: inline-block;	width: 80px;	background: #FF8F8F;	padding: 2px;	border-radius: 3px;	text-align: center;	border: inherit;	border-width: 1px;}
+.showBtn  { color:whitesmoke;	display: inline-block;	width: 100%;	text-align: center;	font-weight: bold;	border-radius: 6px;	cursor: pointer;}
+
+label{font-size: x-large;	margin-left: 5px;	display: inline-block;	width: 40px;	text-align: center; vertical-align:top;}
+.edText1 {	font-size: large;	border-radius: 5px;	padding: 0px 3px;	width: 110px;color:#168C8C;}
+.edText2 {	border-radius: 5px;	padding: 0px 3px;	width: 110px;	font-size: medium;	font-family: Helvetica;	margin-left: 3px;color:#168C8C;}
+.edBtn {	background: #01B1B1;	border: 2px solid #168C8C;	display: inline-block;	width: 30px;	text-align: center;	padding: 3px;	border-radius: 12px; cursor:pointer}
+
+.edSelect {	font-size: larger;	border-radius: 5px;	 margin:0px 5px 0px 3px;color:#168C8C;}
+
+.edBlock {	background: #f9f9f9;	margin: 3px 0px 3px 0px;		border-radius: 6px;	border: 2px solid #77D5D5; color:#168C8C;}
+.edWrap {	background: #ACEDED;	margin: 6px 0px;	padding: 6px;}
+.edEven {background:#77D5D5;}
+#eventDetails{	background: whitesmoke;	margin: 2px;	border-radius: 3px;}
+#timesince {	background: whitesmoke;	margin: 2px;	border-radius: 3px;	display: flex;	flex-direction: column;	justify-content: space-around;	flex-grow: 0;}
+.tsWrap{display:flex; flex-direction:row;margin:3px 0px;background-color:#f9f9f9;padding:3px;}
+
+.icwrap{}
+.txtwrap{	display: flex;	flex-grow: 1;	flex-direction: column;	margin-left: 5px;color:#1DBB1D;}
+.tsTime {	background: #B3F6B3;flex-grow:0; padding: 3px;	margin-bottom:3px;font-size: smaller;	font-weight: bold;	height: 24px;	display: inline-block;	border-radius: 3px;}
+.tsInfo {	background: #83EA83; flex-grow:1;	padding: 3px;	font-size: smaller;			display: inline-block;	border-radius: 3px;}
+.timeline{ display:flex; flex-direction:column; max-height:400px; padding:5px; overflow:scroll;background:whitesmoke;border:2px solid #FFC18F;margin:2px; border-radius; border-radius:6px;} 
+.tlBlock {	display: flex;	flex-grow: 1;	flex-direction: row;	padding: 2px 3px 3px 3px;	color: #E97E25;	border-bottom: 1px dotted;}
+.toastBlock {	display: flex;	flex-grow: 0; width:90%; justify-content:space-around;	flex-direction: row;	padding: 2px 3px 3px 3px;	color: #E97E25;	border-bottom: 1px dotted;}
+.icon2  {	font-size: 32px;display:inline-block;width:50px;height:50px;border-radius:64px; text-align:center;border:1px solid #E97E25;background-color:#FFAE6B;}
+.event {font-size:smaller;	display: flex;	flex-direction: column;	margin-left: 5px;	background: #f9f9f9;	flex-grow: 1;	border-radius: 3px;	padding: 3px;}	
+.eventTS{font-weight:bold;background-color:#FFD9BA;padding:2px; border-radius:3px;flex-grow:0;}
+.eventTxt{margin-top:3px;font-weight:bold;background-color:#FFC18F;padding:2px; border-radius:3px;flex-grow:1;}
+#header{	text-align: center;font-size: 24px;	font-weight: bold;	border-radius: 6px;	margin: 5px 2px;	padding: 2px;	color: #168C8C;	background: #ACEDED;	height: 36px;	display: inline-block;}
+.collapse{display:none !important; }
+.toaster{	height: 0%;	width: 100%;	position: fixed;	z-index: 1;	left: 0;	top: 0;	
+background-color: rgb(200,200,200); 	background-color: rgba(200,200,200, 0.9);
+	overflow-x: hidden;	transition: 0.5s;	display: flex;	justify-content: center;	align-items: center; flex-direction:column;	}
+#toasterMsg  {	background: #FF9D4C;	display: inline-block;	text-align: center;	width: 80%;	padding: 5px;	border-radius: 5px;	font-weight: bold;	color: #f9f9f9;	margin-bottom: 5px;}
+.toastBtn {	background-color: #FFAE6B;	border: 0px;	border-radius: 3px;	color: whitesmoke;	padding: 5px;min-width:80px;	cursor: pointer;}
+</style>
+</head>
+<body onload="setDebugDiv();">
+<div id="debug">
+	<input type="button" onclick="location.reload();" value="Reload"/>
+	<span id="reload">ERROR</span>
+
+	<!--input type="button" onclick="doNext();" value="Next" id="next"/-->
+</div>
+<div id="main">
+	<div id="header">
+		<span id="title">Baby-(re)Minder 1.0</span>
+	</div>
+	<div id="showtimesince" class="btnBanner">
+		<span class="showBtn">Time Since</span>
+	</div>
+	<div id="timesince" class="block view">		
+		<!--span id="title2">Time elapsed since last</span-->
+		<div id="tsFeed" class="tsWrap">
+			<div class="icwrap">
+				<span class="icon">🍼</span>
+			</div>
+			<div class="txtwrap">
+				<span id="dtFeed" class="tsTime">???</span>
+				<span id="infFeed" class="tsInfo">Info:</span>
+				<input type="hidden" id="hdFeed" value="NOEVENT"></input>
+			</div>
+		</div>
+		<div id="tsDiap" class="tsWrap tsEven">
+			<div class="icwrap">
+				<span class="icon">🩲</span>
+			</div>
+			<div class="txtwrap">
+				<span id="dtDiap" class="tsTime">???</span>
+				<span id="infDiap" class="tsInfo">Info:</span>
+				<input type="hidden" id="hdDiap" value="NOEVENT"></input>
+			</div>
+		</div>
+		<div id="tsBath" class="tsWrap">
+			<div class="icwrap">
+				<span class="icon">🚿</span>
+			</div>
+			<div class="txtwrap">
+				<span id="dtBath" class="tsTime">???</span>
+				<span id="infBath"  class="tsInfo">Info:</span>
+				<input type="hidden" id="hdBath" value="NOEVENT"></input>
+			</div>
+		</div>
+		<div id="tsBath" class="tsWrap tsEven">
+			<div class="icwrap">
+				<span class="icon">👶</span>
+			</div>
+			<div class="txtwrap">
+				<span id="dtOther" class="tsTime">???</span>
+				<span id="infOther" class="tsInfo">Info:</span>
+				<input type="hidden" id="hdOther" value="NOEVENT"></input>
+			</div>
+		</div>
+	</div>
+	<div id="showtimeline" class="show btnBanner">
+		<span class="showBtn">View Timeline</span>
+	</div>
+	<div id="timeline" class="collapse timeline view">
+		<!--span id="title2">Event Timeline</span-->
+		<div class="tlBlock">
+			<span class="icon2">🩲</span>
+			<div class="event">
+				<span class="eventTS">DT HH:MM:SS</span>
+				<span class="eventTxt">Wet</span>
+			</div>
+		</div>
+	</div>
+	<div id="showaddevent" class="show btnBanner">
+		<span class="showBtn">Add New Event</span>
+	</div>
+	<div id="addevent" class="collapse fourBlock view">
+		<div class="iconBlock" id="aeFeed">
+			<span class="icon3" id="feed">🍼</span>
+			<span class="aeText" id="feedTxt">Feed</span>
+		</div>
+		<div class="iconBlock" id="aeDiap">
+			<span class="icon3" id="diap">🩲</span>
+			<span class="aeText" id="diapTxt">Diaper</span>
+		</div>
+		<div class="iconBlock" id="aeShower">
+			<span class="icon3" id="shower">🚿</span>
+			<span class="aeText" id="showerTxt">Shower</span>
+		</div>
+		<div class="iconBlock" id="aeOther">
+			<span class="icon3" id="other">👶</span>
+			<span class="aeText" id="otherTxt">Other</span>
+		</div>
+	</div>
+	<div id="eventDetails" class="collapse">
+
+		<div id="edFeed" class="collapse edBlock">		
+			<div class="edWrap edEven">
+				<span id="edEventTitle">Add 🍼 event</span>
+			</div>		
+			<div class="edWrap">
+				<label for="edFTime">⏱️</label>
+				<select class="edSelect" id="edFTime" name="feed">
+					<option value="now" selected>Now</option>
+					<option value="00:30">00:00</option>
+				</select>
+				<span id="edFSave" class="edBtn">➕</span>
+			</div>
+			<div class="edWrap edEven">
+				<label for="edFQty">🧪</label>
+				<input type="text" class="edText1" id="edFQty" placeholder="Qty (optional)"></input>
+			</div>
+			<div class="edWrap">
+				<label for="edFComment">📝</label>
+				<textarea class="edText2" id="edFComment" placeholder="Comment (optional)" rows="3" cols="50"></textarea>
+			</div>
+		</div>
+		<div id="edDiap" class="collapse edBlock">	
+			<div class="edWrap edEven">
+				<span id="edEventTitle">Add 🩲 event</span>
+			</div>
+			<div class="edWrap">
+				<label for="edDTime">⏱️</label>
+				<select class="edSelect" id="edDTime" name="diaper">
+					<option value="now" selected>Now</option>
+					<option value="00:00">00:00</option>
+				</select>
+				<span id="edDSave" class="edBtn">➕</span>
+			</div>
+			<div class="edWrap edEven">
+				<label for="edDComment">📝</label>
+				<textarea class="edText2" id="edDComment" placeholder="Comment (optional)" rows="3" cols="50"></textarea>
+			</div>
+		</div>
+		<div id="edShower" class="collapse edBlock">	
+			<div class="edWrap edEven">
+				<span id="edEventTitle">Add 🚿 event</span>
+			</div>
+			<div class="edWrap">
+				<label for="edSTime">⏱️</label> 
+				<select class="edSelect" id="edSTime" name="shower">
+					<option value="now" selected>Now</option>
+					<option value="00:00">00:00</option>
+				</select>
+				<span id="edSSave" class="edBtn">➕</span>
+			</div>
+			<div class="edWrap edEven">
+				<label for="edSComment">📝</label>
+				<textarea class="edText2" id="edSComment" placeholder="Comment (optional)" rows="3" cols="50"></textarea>
+			</div>
+		</div>
+		<div id="edOther" class="collapse edBlock">	
+			<div class="edWrap edEven">
+				<span id="edEventTitle">Add other 👶 event</span>
+			</div>
+			<div class="edWrap">
+				<label for="edOTime">⏱️</label>
+				<select class="edSelect" id="edOTime" name="other">
+					<option value="now" selected>Now</option>
+					<option value="00:00">00:00</option>
+					<option value="00:30">00:30</option>
+				</select>
+				<span id="edOSave" class="edBtn">➕</span>
+			</div>
+			<div class="edWrap edEven">
+				<label for="edOComment">📝</label>
+				<textarea class="edText2" id="edOComment" placeholder="Comment (optional)" rows="3" cols="50"></textarea>
+			</div>
+		</div>		
+	</div>
+</div>
+
+<div id="toast" class="toaster">
+	<div id="toasterMsg">Add new event to timeline?</div>
+	<div class="toastBlock">
+		<span class="icon2" id="toastIcon">&#x1F354;</span>
+		<div class="event">
+			<span class="eventTS"  id="toastTS">DT HH:MM:SS</span>
+			<span class="eventTxt" id="toastInf">150ml</span>
+		</div>
+	</div>
+	<div class="toastBlock">
+		<button id="add" class="toastBtn">Add</button>
+		<button id="cancel" class="toastBtn">Cancel</button>
+	</div>
+</div>
+<script>
+	function onLoad(){//first steps
+		//initialize event listeners
+		$(".btnBanner").click(function(){//set up hide/show for the remaining tabs			
+			let showView = $(this).attr("id").substring(4);
+			//console.log("DBG: click",$(this).attr("id"),showView);
+			$(".view").each(function(idx){
+				let hndView = $(this).attr("id");
+				if(hndView==showView) $(this).removeClass(["collapse"]);
+				else $(this).addClass(["collapse"]);
+				//console.log("DBG: itr",hndView,showView==hndView,showView);
+			});
+			//also hide add-event if already showing
+			$("#eventDetails").addClass(["collapse"]);
+			switch(showView){
+				case "timeline"://timeline update needed
+					buildTimeline(); break;
+				case "timesince":
+					setTimeSince(); break;
+			}
+		});
+		
+		$(".iconBlock").click(function(){//user selected which event to add			
+			let showView = "ed"+$(this).attr("id").substring(2);
+			//console.log("DBG: click",$(this).attr("id"),showView);
+			$("#eventDetails").removeClass(["collapse"]); //show the event details tab
+			$(".edBlock").each(function(idx){//clear out event details blocks which are not relevant and reveal the one that is
+				let hndView = $(this).attr("id");
+				if(hndView==showView){
+					$(this).removeClass(["collapse"]);
+					updateTimeSelect(showView); //we need to update the select input to Now + 6 30-min blocks back in time
+				}
+				else $(this).addClass(["collapse"]);
+				//console.log("DBG: itr",hndView,showView==hndView,showView);
+			});
+			$("#addevent").addClass(["collapse"]); //also hide the 'add event op'
+		});
+		
+		$(".edBtn").click(function(){//user clicked "+" after completing creation of event
+			let showView = $(this).attr("id").substring(2);
+			//console.log("DBG: click",$(this).attr("id"),showView);
+			$("#eventDetails").addClass(["collapse"]); //hide the add evt block
+			$("#addevent").removeClass(["collapse"]); //show the add new evt block
+			processAddEvent(showView); //process the event to be added
+		});
+		
+		$("#cancel").click(function(){
+			hideToast();
+		});
+		
+		//init housekeeping
+		setTimeSince();
+		let hnd = setInterval(function(){
+			updateTimeSince("Feed");
+			updateTimeSince("Diap");
+			updateTimeSince("Bath");
+			updateTimeSince("Other");
+		},500);
+	}
+	
+	onLoad();
+
+	function setTimeSince(){ //this is a one time op, whenever page loads or when a new event is added
+		let evtList = readCookie();
+		
+		let feedEvt = getLastEvent(evtList,"F");
+		setTS(feedEvt,"Feed");
+		
+		let diapEvt = getLastEvent(evtList,"D");
+		setTS(diapEvt,"Diap");
+		
+		let showerEvt = getLastEvent(evtList,"S");
+		setTS(showerEvt,"Bath");
+		
+		let otherEvt = getLastEvent(evtList,"O");
+		setTS(otherEvt,"Other");
+		
+	}
+	
+	function getLastEvent(evtList,flag){
+		let filt = evtList.filter(e=>e.evtDetails.eventType==flag).map(e=>e.evtDetails);
+		if(filt.length>0){
+			let lastEvt = filt[0];
+			evtList.forEach((item,idx)=>{
+				if(item.eventTime>lastEvt.eventTime) lastEvt = item;
+			});
+			return  {elapsed:getElapsed(lastEvt.eventTime), info:lastEvt.eventData, ts:lastEvt.eventTime};
+		}
+		else{
+			return {elapsed:"----- HH:MM:SS",info:"No such event logged",ts:"NOEVENT"};
+		}	
+	}
+	
+	function getElapsed(time){
+		let elapsed = ((new Date()).getTime() - time)/1000;
+		let diff = {};
+		diff.days    = Math.floor(elapsed / 86400);
+		diff.hours   = Math.floor(elapsed / 3600 % 24);
+		diff.minutes = Math.floor(elapsed / 60 % 60);
+		diff.seconds = Math.floor(elapsed % 60);
+		return "(T+"+diff.days+") +"+(diff.hours>9?"":"0")+diff.hours+":"+(diff.minutes>9?"":"0")+diff.minutes+":"+(diff.seconds>9?"":"0")+diff.seconds;
+	}
+	
+	function updateTimeSince(flag){//this is a shorted method not requiring cookie reading
+		//it also implies that setTimeSince() needs to be called every time a new event is added
+		let val = $("#hd"+flag).val();
+		if(val=="NOEVENT") return;
+		$("#dt"+flag).text(getElapsed(val*1));
+	}
+		
+	function setTS(evt,flag){
+		$("#dt"+flag).text(evt.elapsed); //set the visible value
+		$("#inf"+flag).text(evt.info);	//set the visible info
+		$("#hd"+flag).val(evt.ts); //set the hidden ts for reuse later
+	}
+	
+	function updateTimeSelect(evt){
+		//console.log("TBD: Update the select options with correct time options", evt,"#"+evt.substr(0,3)+"Save");
+		let hndSelect = "#"+evt.substr(0,3)+"Time";//get the handle to the select
+		//console.log("DBG:" , $(hndSelect));
+		$(hndSelect+" option:not(option:first)").remove(); //remove all old-options excluding the first "now"
+		setNewTimeOptions(hndSelect); //rebuild rest of time select
+	}
+	
+	function setNewTimeOptions(sel){
+		let opts = "";
+		getTimeSteps().forEach((itm,idx)=>{
+			//console.log("DBG: ",itm,idx,new Date(itm.val));
+			opts+= '<option value="'+itm.val+'">'+itm.lbl+'</option>';
+		});
+		$(sel).append(opts);
+	}
+	
+	function getTimeSteps(){
+		let dt= getHM(); //get the current date-time
+		//console.log("DBG: dt", dt);
+		let tList = [];
+		for(var i = 0; i < 8;i++){//take 8 30-min steps backwards 
+			let dtI = new Date(dt.d0.getTime()+(dt.hh*60+dt.mm-30*i)*60000); //substract 30 min chunks, and add back "now" time to start of day
+			let hh = dtI.getHours();
+			let mm = dtI.getMinutes();
+			//lbl is in the format HH:MM <(T-1)/"">
+			tList.push({lbl:(hh>9?"":"0")+hh+":"+(mm>9?"":"0")+mm+(dtI.getDate()!=dt.d0.getDate()?" (T-1)":""),val:dtI.getTime()});
+		}
+		return tList;
+	}
+	
+	function getHM(){
+		let hm = {d0: new Date()};
+		hm.hh = hm.d0.getHours();
+		hm.mm = hm.d0.getMinutes()>30?30:0;
+		hm.d0.setHours(0,0,0,0); //set time to start of current day
+		
+		return hm;
+	}	
+		
+	function processAddEvent(evt){
+		//console.log("TBD: Get the event details from handle",evt);
+		let evtChar = evt.substr(0,1);  //the letter tells us what event type it is
+		let selOpt = $("#ed"+evtChar+"Time option:selected").val();
+		let event = {eventType:evtChar, eventTime:(selOpt=="now"?((new Date()).getTime()):selOpt*1)};
+		
+		event.eventQty = (evtChar=="F")?$("#ed"+evtChar+"Qty").val():"";
+		event.eventData = ((event.eventQty.length>0)?event.eventQty+" - ":"") + $("#ed"+evtChar+"Comment").val(); //
+
+	
+		showToast(event);	//show toast with option to remove event
+	}
+
+	function writeCookie(event){
+		//console.log("DBG:",event);
+		let dtEvt = new Date(event.eventTime);
+		let expiry = new Date(event.eventTime+(5*24*60*60000));
+		let ts = (dtEvt.getTime()-dtEvt.getMilliseconds())/1000;
+		if(isNaN(ts)) console.log("ERR:",event);
+		document.cookie = 'event'+event.eventType+(ts)+'='+ JSON.stringify(event) +';expires=' + expiry.toUTCString()+" ;path=/";
+	}
+	
+	function showToast(event){
+		//console.log("TBD: Add a toast with info",event);
+		$("#toast").css("height","100%");
+		$("#toast").css("opacity","1");
+		
+		$("#toastIcon").text(getIcon(event.eventType));
+		$("#toastTS").text(getDtStr(event.eventTime));
+		$("#toastInf").text(event.eventData);
+		
+		$("#add").click(function() { 
+			console.log("add",event);
+			writeCookie(event); //save the event
+			setTimeSince();
+			hideToast(); //this will also remove this event handler
+        }); 
+	}
+		
+	function readCookie(){
+		let decodedCookie = decodeURIComponent(document.cookie);
+		let eventList=[];
+		let ca = decodedCookie.split(';');
+		for(let i=0;i<ca.length;i++){
+			//console.log("DBG",i,ca[i]);
+			let c = ca[i];
+			while (c.charAt(0) == ' ') {//this is required to trim leading whitespace
+			  c = c.substring(1);
+			}
+			if(c.length>0)
+				eventList.push(getEvent(c));
+		}
+		//console.log("DBG:pre-sort",eventList.map(e=>e.evtId).join(", "));
+		eventList.sort((a,b)=>{
+			let aTs = 1*a.evtId.substring(6);
+			let bTs = 1*b.evtId.substring(6);
+			return (aTs==bTs)?(a.evtId<b.evtId):(aTs<bTs);
+		});
+		//console.log("DBG:aft-sort",eventList.map(e=>e.evtId).join(", "));
+		return eventList;
+	}
+	
+	function getEvent(cp){
+		let ix = cp.indexOf("=");
+		return {evtId:cp.substr(0,ix),evtDetails:JSON.parse(cp.substring(ix+1))};
+	}
+		
+	function buildTimeline(){
+		$("#timeline").empty(); //clear existing timeline
+		let evtList = readCookie(); //read the saved entries
+		evtList.forEach((e,idx)=>{
+			//console.log("DBG",e,idx,e.eventDetails);
+			$("#timeline").append(getTimelineEvt(e.evtDetails));
+		});	
+	}
+	
+	function getTimelineEvt(event){
+		let tlB = $('<div>', {class: 'tlBlock'});
+		let ico = $('<span>', {class: 'icon2'});
+		let evt = $('<div>', {class: 'event'});
+		let eTS = $('<span>', {class: 'eventTS'});
+		let eTX = $('<span>', {class: 'eventTxt'});
+		ico.text(getIcon(event.eventType));
+		eTS.text(getDtStr(event.eventTime));
+		eTX.text(event.eventData);
+		
+		evt.append(eTS,eTX);
+		tlB.append(ico,evt);
+		/*<div class="tlBlock">
+			<span class="icon2">🍼</span>
+			<div class="event">
+				<span class="eventTS">DT HH:MM:SS</span>
+				<span class="eventTxt">150ml</span>
+			</div>
+		</div>*/	
+		return tlB;
+	}
+	
+	function getIcon(typ){
+		let codePt = 0x1F354; //default is hamburger
+		switch(typ){
+			case "F": codePt = 0x1F37C; break;
+			case "D": codePt = 0x1FA72; break;
+			case "S": codePt = 0x1F6BF; break;
+			case "O": codePt = 0x1F476; break;
+		}
+		return String.fromCodePoint(codePt);
+	}
+	
+	function getDtStr(time){
+		let dt = new Date(time*1);
+		let now = new Date();
+		let dtStr = ((dt.getHours()<10)?"0":"")+dt.getHours()+":"+((dt.getMinutes()<10)?"0":"")+dt.getMinutes();
+		//console.log("DBG:",time,dt.getDate(),now.getDate(),dt,now)
+		if(dt.getDate()!=now.getDate()){//different day`
+			//find out how many days ago
+			let dtTrun = new Date(dt.getTime());
+			dtTrun.setHours(0,0,0,0);
+			let nwTrun = new Date();
+			nwTrun.setHours(0,0,0,0);
+			let delta = (dtTrun-nwTrun)/(24*60*60000);
+			dtStr += " (T"+delta+")";
+		}
+		return dtStr;
+	}
+	
+	function hideToast() {
+	  $("#toast").css("height","0%");
+	  $("#toast").css("opacity","0");
+	  $("#add").unbind();
+	}
+		
+	function deleteCookies(){
+		let list = readCookie();
+		list.forEach((item,idx)=>{
+			console.log("Deleting",item.evtId);
+			document.cookie = item.evtId+"= ; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/" 
+		});
+		console.log(document.cookie);
+	}
+</script>
+
+</body>
+</html>
