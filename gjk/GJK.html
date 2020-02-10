@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GJK Visualizer</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!--script src="GJK.js"></script-->
+    <script>
+        function setDebugDiv(){
+            //$("reload").html(JSON.stringify(Date()).split("+")[0]);
+            document.getElementById("reload").innerHTML = JSON.stringify(Date()).split("+")[0];
+        }
+    </script>
+</head>
+<body onload="setDebugDiv();">
+<div id="debug">
+	<input type="button" onclick="location.reload();" value="Reload"/>
+	<span id="reload">ERROR</span>
+	<!--input type="button" onclick="doNext();" value="Next" id="next"/-->
+</div>
+<style>
+canvas{
+	border:2px solid black;
+	margin:20px;
+}
+</style>
+<canvas id="canvas" width="600" height="600">
+	Canvas not supported!
+</canvas>
+
+<canvas id="canvas2" width="600" height="600">
+	Canvas not supported!
+</canvas>
+
+<script>
+	//draw functions
+	let cvxs = [];
+	let pointListA = [[-100, 100],[-200,  150],[-225, 80],[-120, 60]];
+	let pointListB = [[ -60,  50],[-160, -100],[-185, 70],[ -80, 90]];
+	let dragObj = {pt: null,  dragging: false};
+	
+	init();
+	
+	function init(){
+		var canvas = document.getElementsByTagName("canvas");
+		
+		let pos = "left";
+		for(let idx=0;idx<canvas.length;idx++){//forEach((item,idx)=>{
+			cvxs.push(initCanvas(canvas[idx],pos));
+			pos = "right";
+			drawAxes(cvxs[idx].context);
+		}//
+			
+		//drawShape(getCtx(cvxs,"left"),  tCPt(pointListA), "#c0c0c0");
+		//drawShape(getCtx(cvxs,"left"),  tCPt(pointListB), "#ffc0c0");
+		reDrawCanvas("left",pointListA,pointListB);
+		recomputeMirkowski(pointListA,pointListB,getCtx(cvxs,"right"));
+	}
+	
+	function initCanvas(hndCanvas,cPos){
+		let cvx = {canvas:hndCanvas, pos:cPos};
+		cvx.context = hndCanvas.getContext('2d');
+		cvx.context.clearRect(0,0,hndCanvas.width, hndCanvas.height);
+		
+		let id = "#"+hndCanvas.id;
+		$(id).mousedown(function(e) {
+			let rect = hndCanvas.getBoundingClientRect();
+			let x = e.clientX - rect.left;
+			let y = e.clientY - rect.top;
+
+			processMouseDn(x, y);
+		});
+		
+		$(id).mouseup(function(e) {
+			console.log("up");
+			dragObj.pt = null;
+			dragObj.dragging = false;
+			recomputeMirkowski(pointListA,pointListB,getCtx(cvxs,"right"));
+			//populateListC(pointListA,pointListB,ctx2);
+		});
+		
+		$(id).mousemove(function(e) {
+			let rect = canvas.getBoundingClientRect();
+			let x = e.clientX - rect.left;
+			let y = e.clientY - rect.top;
+			//console.log(dragObj);
+			if (dragObj.dragging) {
+				dragObj.pt[0] = x-300;
+				dragObj.pt[1] = 300-y;
+				reDrawCanvas("left",pointListA,pointListB);
+			}
+		});
+		
+		return cvx;
+	}
+	
+	function reDrawCanvas(pos,ptList1,ptList2,ptList3=false){
+		let cvx = cvxs.find(cv=>cv.pos==pos);
+		
+		cvx.context.clearRect(0,0,cvx.canvas.width, cvx.canvas.height);
+		drawAxes(cvx.context);
+		
+		if(pos=="left"){
+			drawShape(getCtx(cvxs,"left"),  tCPt(ptList1), "#c0c0c0",true);
+			drawShape(getCtx(cvxs,"left"),  tCPt(ptList2), "#ffc0c0",true);
+			drawLabels(getCtx(cvxs,"left"), tCPt(ptList1),ptList1,"#c0c0c0");
+			drawLabels(getCtx(cvxs,"left"), tCPt(ptList2),ptList2,"#ffc0c0");
+		}	
+		else{
+			drawShape(getCtx(cvxs,"right"), tCPt(ptList1), "#99ff99",false);
+			drawLabels(getCtx(cvxs,"right"),tCPt(ptList2),ptList2,"#ff8888");
+			
+			drawPolygon(getCtx(cvxs,"right"), tCPt(ptList2), "#ff9999");
+			if(ptList3!=false){
+				drawTriangle(getCtx(cvxs,"right"), tCPt(ptList3), "#6688ff","#6688ff"); 
+			}
+			else{
+				let ctx = getCtx(cvxs,"right");
+				ctx.font = "14px Arial";
+				ctx.fillStyle = "#ff0000";
+				ctx.fillText("NO Intersection", 30,30); 
+			}
+//			drawLabels(getCtx(cvxs,"right"),tCPt(ptList2),ptList2,"#ff0000");
+		}
+	}
+	
+	function drawLabels(ctx, plC, plT, color){
+		ctx.font = "14px Arial";
+		ctx.fillStyle = color;
+		for(let i=0;i<plC.length;i++){
+			ctx.fillText(getPtStr(plT[i]), plC[i][0]+5, plC[i][1]-5); 
+		}
+	}
+	
+	function getPtStr(pt){
+		return "("+pt[0]+", "+pt[1]+")";
+	}
+	
+	function drawPolygon(ctx,pointList, color,fill=false){
+		for (var i = 0; i < pointList.length; i++) {
+			drawPath(ctx, pointList[i], pointList[(i + 1) % pointList.length], color);
+		}
+		for (var i = 0; i < pointList.length; i++) {
+			drawCircle(ctx, pointList[i][0], pointList[i][1], color, 3);
+		}
+	}
+	
+	function findNextExtr(pList, findMode, filterMode){
+		if(pList.length==0) return false;
+		let pExt = pList[0];
+		for(let i=1;i<pList.length;i++){
+			switch(findMode){
+				case "xMax":
+					if(pExt[0]==pList[i][0]){//case when filtermode is important
+						if(filterMode=="yMin"){//select the one with smaller y
+							if(pExt[1]>pList[i][1]){
+								pExt = pList[i];
+							}//else already correct pt
+						}
+					}
+					else{
+						if(pExt[0]<pList[i][0]){
+							pExt = pList[i];
+						}
+					}
+					break;
+				case "yMax":
+					if(pExt[1]==pList[i][1]){//case when filtermode is important
+						if(filterMode=="xMax"){//select the one with bigger x
+							if(pExt[0]<pList[i][0]){
+								pExt = pList[i];
+							}//else already correct pt
+						}
+					}
+					else{
+						if(pExt[1]<pList[i][1]){
+							pExt = pList[i];
+						}
+					}
+					break;
+				case "xMin":
+					if(pExt[0]==pList[i][0]){//case when filtermode is important
+						if(filterMode=="yMax"){//select the one with smaller y
+							if(pExt[1]<pList[i][1]){
+								pExt = pList[i];
+							}//else already correct pt
+						}
+					}
+					else{
+						if(pExt[0]>pList[i][0]){
+							pExt = pList[i];
+						}
+					}
+					break;
+				case "yMin":
+					if(pExt[1]==pList[i][1]){//case when filtermode is important
+						if(filterMode=="xMin"){//select the one with bigger x
+							if(pExt[0]>pList[i][0]){
+								pExt = pList[i];
+							}//else already correct pt
+						}
+					}
+					else{
+						if(pExt[1]>pList[i][1]){
+							pExt = pList[i];
+						}
+					}
+					break;
+				
+			}//end switch
+		}//end for
+		return pExt;
+	}
+	
+	function sortXMax(a,b){return (a[0]==b[0]?(a[1]-b[1]):b[0]-a[0]);}//else fails on Chrome
+	
+	function sortYMax(a,b){return (a[1]==b[1]?(a[0]-b[0]):b[1]-a[1]);}		
+	
+	function sortYMin(a,b){return (a[1]==b[1]?(b[0]-a[0]):b[1]-a[1]);}
+	
+	function sortXMin(a,b){return (a[0]==b[0]?(b[1]-a[1]):a[0]-b[0]);}
+	
+	function filter_py_gt_PY(ptL,ptExt){//filter on P(y>PY)
+		return ptL.filter(pt=>(!isSamePt(pt,ptExt))&&(pt[1]>=ptExt[1]));
+	}
+	
+	function filter_px_lt_PX(ptL,ptExt){//filter on P(x<PX)
+		return ptL.filter(pt=>(!isSamePt(pt,ptExt))&&(pt[0]<=ptExt[0]));
+	}
+	
+	function filter_py_lt_PY(ptL,ptExt){//filter on P(y<PY)
+		return ptL.filter(pt=>(!isSamePt(pt,ptExt))&&(pt[1]<=ptExt[1]));
+	}
+	
+	function filter_px_gt_PX(ptL,ptExt){//filter on P(x>PX)
+		return ptL.filter(pt=>(!isSamePt(pt,ptExt))&&(pt[0]>=ptExt[0]));
+	}
+	
+	//let pNew = [[-65, 180], [-55,180] ,[-140, 80],[-140, 100], [-120, 60], [-40, 50],[-40,30]];
+	function recomputeMirkowski(ptA,ptB,ctx){
+		//console.log("DBG: mirkowski", ptA, ptB);
+		let ptC = [];//ptA.slice().concat(ptB.slice());
+		ptA.forEach((a,idxA)=>{
+			ptB.forEach((b,idxB)=>{
+				ptC.push([a[0]-b[0],a[1]-b[1]]);
+			});
+		});
+		
+		let pBoundary = []; //collect the boundary points
+		let steps=[{sort:sortXMax,filter:filter_py_gt_PY,findMode:"xMax",filterMode:"yMin"},
+				   {sort:sortYMax,filter:filter_px_lt_PX,findMode:"yMax",filterMode:"xMax"},
+				   {sort:sortXMin,filter:filter_py_lt_PY,findMode:"xMin",filterMode:"yMax"},
+				   {sort:sortYMin,filter:filter_px_gt_PX,findMode:"yMin",filterMode:"xMin"}
+					];
+		let ptExt;
+		for(let i=0;i<steps.length;i++){
+			let ptCNew = ptC.slice();
+			ptCNew.sort(steps[i].sort);
+			if(i==0){ 
+				ptExt = ptCNew[0];
+				pBoundary.push(ptExt);
+			}
+			while(ptCNew.length>0&&(ptExt!=false)){			
+				if(!isSamePt(pBoundary[pBoundary.length-1],ptExt)){
+					pBoundary.push(ptExt); //save the point
+				}//filter on P(y>PY)
+				ptCNew = steps[i].filter(ptCNew,ptExt);
+				ptExt = findNextExtr(ptCNew,steps[i].findMode,steps[i].filterMode);
+			}
+		
+			if(!ptExt) ptExt = pBoundary[pBoundary.length-1];
+		}
+		
+		pBoundary.pop(); //remove the start point as it is first to be added
+		
+		let filt={updated:true, hull:pBoundary};
+		while(filt.updated){
+			filt = filterHull(filt.hull);
+		}
+		
+		let simplex = computeSimplexes(filt.hull);
+		reDrawCanvas("right",ptC,filt.hull, simplex);
+	}
+	
+	function filterHull(pBoundary){
+		let pBFiltered=[];
+		for(let i=0;i<pBoundary.length;i++){//remove boundary points that create a concave hull
+			let lp1 = (i-1+pBoundary.length)%pBoundary.length;
+			let lp2 = (i+1+pBoundary.length)%pBoundary.length;
+			console.log("Testing:",lp1,lp2,">",i,getPtStr(pBoundary[lp1]),getPtStr(pBoundary[lp2]),">",getPtStr(pBoundary[i]),signedArea(pBoundary[lp1],pBoundary[lp2],pBoundary[i]));
+			if(signedArea(pBoundary[lp1],pBoundary[lp2],pBoundary[i])<0){
+				pBFiltered.push(pBoundary[i]);
+			}
+			else{
+				//console.log("Skipped:");//,lp1,lp2,getPtStr(pBoundary[i]),i,rexx(pBoundary[lp1],pBoundary[lp2],pBoundary[i]));
+			}
+		}
+		if(pBFiltered.length==pBoundary.length){
+			return {updated:false,hull:pBoundary};
+		}
+		else{
+			return {updated:true,hull:pBFiltered};
+		}
+	}
+	
+	function computeSimplexes(pL){
+		let pList = pL.slice().sort(sortXMax);
+		let simplex = false;
+		for(let i=0;i<pList.length;i++){
+			let cwPtIdx  = -1;
+			let acwPtIdx = -1;
+			let exPt = pList[i];
+			let filt = pList.filter(p=>(!isSamePt(exPt,p)&&(exPt[0]>0?p[0]<0:p[0]>0)));
+			for(let j=0;j<filt.length;j++){
+				let sd = signedArea(exPt,[0,0],filt[j]);
+				
+				if(sd<0 && cwPtIdx==-1) cwPtIdx = j;
+				if(sd>=0&&acwPtIdx==-1) acwPtIdx = j;
+			//	console.log("Pt:",j,getPtStr(filt[j]),sd, cwPtIdx,acwPtIdx);
+				if(cwPtIdx>-1&&acwPtIdx>-1){
+					simplex = [pList[i],filt[cwPtIdx],filt[acwPtIdx]];
+					i=pList.length; break;
+				}//found both points
+			}
+		}
+		//console.log("DBG:", simplex);
+		return simplex;
+	}
+	
+	function signedArea(lp1,lp2,cP){
+		//directed cycle logic 
+		//if cyclic order is clockwise, result is -ve, and indicates convex hull
+		//if cyclic order is acw, reslt is +ve, and indicates concave hull
+		
+		//for the "finding origin inside a simplex", we look for two points:
+			//one which forms a cw triplet with extremis pt and origin
+			//second which forms acw triple with extremis pt and origin
+			//if both points exist, the extremis and the two points are the triangle which encapsulates origin
+		
+		return (cP[1]-lp1[1])*(lp2[0]-lp1[0]) - (cP[0]-lp1[0])*(lp2[1]-lp1[1]) 
+	}
+	
+	function isSamePt(a,b){
+		return (a[0]==b[0])&&(a[1]==b[1]);	
+	}
+	
+	function dumpPointList(p,ptL){
+		let str="";
+		ptL.forEach(pt=>{
+			str += (str.length==0?"[ ":", ")+"("+pt[0]+", "+pt[1]+")";
+		});
+		console.log("Pts:",ptL.length,"("+p[0]+", "+p[1]+")",str+"]");
+	
+	}
+	
+	function drawAxes(ctx){
+		drawPath(ctx,[  0,300],[600,300],"#ff0000");
+		drawPath(ctx,[300,  0],[300,600],"#0000ff");
+		drawCircle(ctx,300,300,"#000000",3);
+	};
+	
+	function drawCircle(ctx, x, y, color, circleSize) {
+		ctx.beginPath();
+		ctx.arc(x, y, circleSize, 0, Math.PI * 2, true);
+		ctx.fillStyle = color
+		ctx.fill();
+		ctx.closePath();
+	}
+	
+	function drawPath(ctx, pt1, pt2, color) {
+		ctx.beginPath();
+		ctx.moveTo(pt1[0], pt1[1]);
+		ctx.lineTo(pt2[0], pt2[1]);
+		ctx.strokeStyle = color;
+		ctx.stroke();
+	}
+
+	function drawTriangle(ctx,ptl,line,fill){
+		ctx.beginPath();
+		ctx.moveTo(ptl[0][0], ptl[0][1]);
+		ctx.lineTo(ptl[1][0], ptl[1][1]);
+		ctx.lineTo(ptl[2][0], ptl[2][1]);
+		ctx.closePath();
+
+		// the outline
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = line;
+		ctx.stroke();
+
+		// the fill color
+		ctx.globalAlpha = 0.3;
+		ctx.fillStyle = fill;
+		ctx.fill();
+		ctx.globalAlpha = 1.0;
+	
+	}
+	
+	function drawShape(ctx, pointList, color, link=true) {
+		for (var i = 0; i < pointList.length; i++) {
+			drawCircle(ctx, pointList[i][0], pointList[i][1], color, 5);
+		}
+		if(link){
+			for (var i = 0; i < pointList.length; i++) {
+				drawPath(ctx, pointList[i], pointList[(i + 1) % pointList.length], color);
+			}
+		}
+	}
+	
+	function getCtx(cs,pos){
+		return cs.find(c=>c.pos==pos).context;
+	}
+	
+	function tCPt(pts){
+		let tPts=[];
+		for(let i=0; i<pts.length; i++){
+			tPts.push([pts[i][0]+300,300-pts[i][1]]);
+		}
+		return tPts;
+	}
+
+	function processMouseDn(x, y) {
+		console.log("Dn");
+		if (!processPointList(tCPt(pointListA), x, y, pointListA)) {
+			processPointList(tCPt(pointListB), x, y, pointListB);
+		}
+	}
+
+	function processPointList(pointList, x, y, origPtList) {
+		for (var i = 0; i < pointList.length; i++) {
+			//console.log(x-pointList[i][0], y-pointList[i][1])
+			if ((Math.abs(x - pointList[i][0]) < 5) && (Math.abs(y - pointList[i][1]) < 5)) {
+				//click captured on this point
+				dragObj.pt = origPtList[i];
+				dragObj.dragging = true;
+				console.log("(",dragObj.pt[0],",",dragObj.pt[1],")");
+				return true;
+			}
+		}
+		return false;
+	}
+
+</script>
+
+
+</body>
+</html>
