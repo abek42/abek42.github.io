@@ -1,0 +1,119 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+	<script src="..\assets\js\nubby.js"></script>
+  </head>
+  <body>
+    <a-scene id="ascene" background="color:#A8E3F8">
+		<a-assets >
+			<img id="a0" src="..\assets\textures\a.png">
+			<img id="b0" src="..\assets\textures\b.png">
+			<img id="c0" src="..\assets\textures\c.png">
+			<img id="d0" src="..\assets\textures\d.png">
+			<img id="e0" src="..\assets\textures\e.png">
+			<img id="f0" src="..\assets\textures\f.png">
+			<img id="g0" src="..\assets\textures\g.png">
+			<img id="h0" src="..\assets\textures\h.png">
+			<img id="i0" src="..\assets\textures\i.png">
+			<img id="j0" src="..\assets\textures\j.png">
+			<img id="k0" src="..\assets\textures\k.png">
+			<img id="l0" src="..\assets\textures\l.png">
+			
+			<img id="m0" src="..\assets\textures\m.png">
+			<img id="n0" src="..\assets\textures\n.png">
+			<img id="o0" src="..\assets\textures\o.png">
+			<img id="p0" src="..\assets\textures\p.png">
+			
+			<img id="q0" src="..\assets\textures\q.png">
+			<img id="r0" src="..\assets\textures\r.png">
+			<img id="s0" src="..\assets\textures\s.png">
+			<img id="t0" src="..\assets\textures\t.png">
+			
+			<img id="u0" src="..\assets\textures\u.png">
+			<img id="v0" src="..\assets\textures\v.png">
+			<img id="w0" src="..\assets\textures\w.png">
+			<img id="x0" src="..\assets\textures\x.png">
+			
+			<img id="y0" src="..\assets\textures\y.png">
+			<img id="z0" src="..\assets\textures\z.png">
+			<img id="n00" src="..\assets\textures\0.png">
+			<img id="n10" src="..\assets\textures\1.png">
+			
+			<img id="n20" src="..\assets\textures\2.png">
+			<img id="n30" src="..\assets\textures\3.png">
+			<img id="n40" src="..\assets\textures\4.png">
+			<img id="n50" src="..\assets\textures\5.png">
+			
+			<img id="n60" src="..\assets\textures\6.png">
+			<img id="n70" src="..\assets\textures\7.png">
+			<img id="n80" src="..\assets\textures\8.png">
+			<img id="n90" src="..\assets\textures\9.png">
+			
+			
+			<img id="skyA" src="..\assets\textures\skyA.png">
+			<img id="grass" src="..\assets\textures\grass.png">
+			<img id="bush" src="..\assets\textures\bush.png">
+			<img id="highcow" src="..\assets\textures\highcow.png">
+			<img id="meow" src="..\assets\textures\meow.png">
+			<img id="woof" src="..\assets\textures\woof.png">
+			<img id="kharu" src="..\assets\textures\kharu.png">
+			<a-mixin id="skyRot" 
+				animation__r="property:rotation.y;from:360;to:0;easing:linear; dur:300000;dir:normal">
+			</a-mixin>
+			<a-mixin id="floatUp" animation__y="property:position.y;to:8;easing:easeInCubic; dur:1500;dir:normal"></a-mixin>
+			<a-mixin id="xPzP"
+				animation__x="property:position; 
+				from:0 0 0;to:6 0 3;easing:easeInCubic;loop:1;dur:2000;dir:normal">	
+			</a-mixin>
+			<a-mixin id="xPzM" 
+				animation__x="property:position; 
+				from:0 0 0;to:6 0 -3;easing:easeInCubic;loop:1;dur:2000;dir:normal">
+			</a-mixin>						
+			<a-mixin id="xMzM" 
+				animation__xm="property:position;
+				from:0 0 0;to:-6 0 -3;easing:easeInCubic;loop:1;dur:2000;dir:normal">
+			</a-mixin>					
+			<a-mixin id="xMzP" 
+				animation__xm="property:position;
+				from:0 0 0;to:-6 0 3;easing:easeInCubic;loop:1;dur:2000;dir:normal">
+			</a-mixin>			
+			<a-mixin id="poof" 
+				animation__o="property:opacity; 
+				from:1;to:0.2;easing:easeInCubic; dur:2000;dir:normal">
+			</a-mixin>
+		</a-assets>
+		<a-entity id="sky" mixin="skyRot" scale="25 25 25">
+			<a-sphere position="0 19.9 0" color="#1395D1" material="side:double;" radius="20" theta-length="90"></a-sphere>
+			<a-cylinder position="0 10 0" height=20.5 material="src:#skyA;side:double;repeat:5 1" radius="20" open-ended="true"></a-cylinder>
+		</a-entity>
+		<a-plane id="floor" position="0 0 0" rotation="-90 0 0" 
+				width="400" height="400" color="#ddd"
+				material="src:#grass;repeat:40 40;"-->
+		</a-plane>
+		<a-plane id="template" position="0 0.5 0" rotation="0 0 0" 
+				width="1.5" height="1.5" 
+		>
+		</a-plane>
+		<a-sphere class="bush" id="bush0" position="7.6 1 -10" material="src:#bush;repeat:8;transparent:true;">
+		</a-sphere>
+		<a-sphere class="bush" id="bush1" position="2 1 -8" radius="0.8" material="src:#bush;repeat:8;transparent:true;">
+		</a-sphere>
+		<a-sphere class="bush" id="bush2" position="-7 1 -11" material="src:#bush;repeat:8;transparent:true;">
+			<a-box position="16 0.5 8" color="blue"></a-box>
+		</a-sphere>
+		<a-sphere class="bush" id="bush3" position="-2 1 -7" radius="0.8" 	material="src:#bush;repeat:8;transparent:true;">
+		</a-sphere>
+		
+		<a-camera position="0 3 0" wasd-controls-enabled="false" >
+			
+		</a-camera>
+    </a-scene>
+		<script>
+			document.getElementById("ascene").addEventListener("loaded",function(evt){
+				registerListeners();
+			
+			},false);
+		</script>
+		
+  </body>
+</html>
