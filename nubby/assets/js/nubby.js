@@ -50,7 +50,7 @@ let evtID=0;
 					let state="KeyUp: "+evt.keyCode+" ";
 					gameState.bushes.forEach((bush,idx)=>{
 						state+="[" + idx+": "+bush.active+", action:";
-						state+= bush.action?(item.action.key+"="+item.action.kc):"null";
+						state+= bush.action?(bush.action.key+"="+bush.action.kc):"null";
 						state+="], ";
 						
 					});
