@@ -41,14 +41,20 @@ let evtID=0;
 			document.addEventListener('keyup',function(evt){
 				//clearRepeater(evt.keyCode);
 				let bush=gameState.bushes[getBush(true,evt.keyCode,evt.key)];
-				if(bush){
+				if(bush){//we should always be able to find the correct bush
 					//spawn(bush);
 					bush.active=false;
 					bush.action=null;
 				}
-				else{
-					console.log("Lost bush",evt.key,
-					gameState.bushes.map((item,idx)=>(idx+": "+item.action.key+"="+item.action.kc+", "+item.active))	.join("], ["));
+				else{//not sure why this will even happen
+					let state="KeyUp: "+evt.keyCode+" ";
+					gameState.bushes.forEach((bush,idx)=>{
+						state+="[" + idx+": "+bush.active+", action:";
+						state+= bush.action?(item.action.key+"="+item.action.kc):"null";
+						state+="], ";
+						
+					});
+					console.log("Lost bush",evt.key,state);
 				}
 				
 			},false);
@@ -151,21 +157,21 @@ let evtID=0;
 				for(let i=0;i<b.length;i++){
 					gameState.bushes.push({bushHnd:b[i],active:false});
 				}
-				return (getBush(forKey,kc,key));
+				//return (getBush(forKey,kc,key));
+			}
+			
+			let bushIdx = -1;
+			if(!forKey){
+				let tmp = [];
+				gameState.bushes.forEach((item,idx)=>{//collect all the inactive bushes
+					if(!item.active) tmp.push(idx);
+				})
+				//select one of the indices at random
+				bushIdx = tmp.length>0?tmp[Math.floor(Math.random()*tmp.length)]:bushIdx;
 			}
 			else{
-				let bushIdx = -1;
-				if(!forKey){
-					let tmp = [];
-					gameState.bushes.forEach((item,idx)=>{
-						if(!item.active) tmp.push(idx);
-					})
-					bushIdx = tmp.length>0?tmp[Math.floor(Math.random()*tmp.length)]:bushIdx;
-					//bushIdx = gameState.bushes.findIndex(b=>!b.active);
-				}
-				else{
-					bushIdx=gameState.bushes.findIndex(b=>b.action&&(b.action.kc==kc));
-				}
-				return bushIdx;
+				bushIdx=gameState.bushes.findIndex(b=>b.action&&(b.action.kc==kc));
 			}
+			return bushIdx;
+		
 		}
