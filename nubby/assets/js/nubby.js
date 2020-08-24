@@ -64,8 +64,8 @@ let evtID=0;
 					}
 				updateBush(bushIdx,getAction(rndChar,String.fromCharCode(rndChar)));
 				//we don't run repeats for mousedown/taps
-				gameState.bushes[bushIdx].bush.active=false;
-				gameState.bushes[bushIdx].bush.action=null;
+				gameState.bushes[bushIdx].active=false;
+				gameState.bushes[bushIdx].action=null;
 				
 			});
 			
