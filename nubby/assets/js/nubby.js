@@ -48,7 +48,7 @@ let evtID=0;
 				}
 				else{
 					console.log("Lost bush",evt.key,
-					bush.bushes.map((item,idx)=>({id:idx,key:item.key,kc:item.kc,active:item.active})).join("], ["));
+					gameState.bushes.map((item,idx)=>({id:idx,key:item.key,kc:item.kc,active:item.active})).join("], ["));
 				}
 				
 			},false);
