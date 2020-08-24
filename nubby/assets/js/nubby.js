@@ -28,41 +28,45 @@ let evtID=0;
 				let action=getAction(evt.keyCode,evt.key);
 				
 				let bushIdx = getBush(true,evt.keyCode,evt.key);
-				if(bushIdx<0){
-					//new key
+				if(bushIdx<0){//new key
 					bushIdx = getBush(false);
-					if(bushIdx<0){
-						//too many active
+					if(bushIdx<0){//too many active
 						return;
 					}
 				}
-				let bush = gameState.bushes[bushIdx];
-				if(bush.active){
-					bush.instances++;	
-				}else{
-					bush.instances=0;
-					bush.active=true;
-					bush.action=action;
-				};
+				updateBush(bushIdx,action);
 				
-				//if here, we have a bushHnd
-				if(bush.instances<5)
-					spawn(bush);
 			});
 			
 			document.addEventListener('keyup',function(evt){
 				//clearRepeater(evt.keyCode);
 				let bush=gameState.bushes[getBush(true,evt.keyCode,evt.key)];
 				if(bush){
-					spawn(bush);
+					//spawn(bush);
 					bush.active=false;
 					bush.action=null;
 				}
 				else{
-					console.log("Lost bush",evt.key);
+					console.log("Lost bush",evt.key,bush.bushes.map((item,idx)=>(return {id:idx,key:item.key,kc:item.kc,active:item.active})).join("], ["));
 				}
 				
 			},false);
+			
+			document.addEventListener('mousedown',function(){
+				//create a random char
+				let rndChar = (Math.floor(Math.random()*20)<6)?
+									(Math.floor(Math.random()*26)+65):
+									(Math.floor(Math.random()*10)+48);	
+				let bushIdx = getBush(false);
+				if(bushIdx<0){//too many active
+						return;
+					}
+				updateBush(bushIdx,getAction(rndChar,String.fromCharCode(rndChar)));
+				//we don't run repeats for mousedown/taps
+				gameState.bushes[bushIdx].bush.active=false;
+				gameState.bushes[bushIdx].bush.action=null;
+				
+			});
 			
 		}
 		
@@ -92,6 +96,21 @@ let evtID=0;
 				//console.log("Poof");
 				hnd.bushHnd.remove(this);
 			},false);
+		}
+		
+		function updateBush(bushIdx,action){
+			let bush = gameState.bushes[bushIdx];
+			if(bush.active){
+				bush.instances++;	
+			}else{
+				bush.instances=0;
+				bush.active=true;
+				bush.action=action;
+			};
+				
+		//if here, we have a bushHnd
+			if(bush.instances<5)
+				spawn(bush);
 		}
 		
 		function nonCryptHash(text,pre=""){
@@ -144,13 +163,8 @@ let evtID=0;
 					//bushIdx = gameState.bushes.findIndex(b=>!b.active);
 				}
 				else{
-					bushIdx=gameState.bushes.findIndex(b=>b.action&&(b.action.key==key&&b.action.kc==kc));
+					bushIdx=gameState.bushes.findIndex(b=>b.action&&(b.action.kc==kc));
 				}
 				return bushIdx;
 			}
-		}
-		
-		function startRepeater(bush){
-			let si = setInterval(spawn(bush),300);
-			bush.siHnd = si;
 		}
