@@ -47,7 +47,8 @@ let evtID=0;
 					bush.action=null;
 				}
 				else{
-					console.log("Lost bush",evt.key,bush.bushes.map((item,idx)=>(return {id:idx,key:item.key,kc:item.kc,active:item.active})).join("], ["));
+					console.log("Lost bush",evt.key,
+					bush.bushes.map((item,idx)=>({id:idx,key:item.key,kc:item.kc,active:item.active})).join("], ["));
 				}
 				
 			},false);
