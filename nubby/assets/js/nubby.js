@@ -87,7 +87,7 @@ let evtID=0;
 			};
 			const keyDown = document.createEvent("KeyboardEvent");
 			const keyUp = document.createEvent("KeyboardEvent");
-			const initMethod = typeof keyboardEvent.initKeyboardEvent !== 'undefined' ? "initKeyboardEvent" : "initKeyEvent";
+			const initMethod = typeof keyDown.initKeyboardEvent !== 'undefined' ? "initKeyboardEvent" : "initKeyEvent";
 
 			keyDown[initMethod](
 			  "keydown", // event type: keydown, keyup, keypress
