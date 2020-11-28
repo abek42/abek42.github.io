@@ -75,6 +75,45 @@ let evtID=0;
 				
 			});
 			
+			document.onkeydown = function (e) {
+				e = e || window.event;//Get event
+
+				if (!(e.ctrlKey||e.altKey)) return;
+
+				//break every fucking key...
+				e.preventDefault();
+				e.stopPropagation();
+				
+			};
+			const keyDown = document.createEvent("KeyboardEvent");
+			const keyUp = document.createEvent("KeyboardEvent");
+			const initMethod = typeof keyboardEvent.initKeyboardEvent !== 'undefined' ? "initKeyboardEvent" : "initKeyEvent";
+
+			keyDown[initMethod](
+			  "keydown", // event type: keydown, keyup, keypress
+			  true,      // bubbles
+			  true,      // cancelable
+			  window,    // view: should be window
+			  false,     // ctrlKey
+			  false,     // altKey
+			  false,     // shiftKey
+			  false,     // metaKey
+			  40,        // keyCode: unsigned long - the virtual key code, else 0
+			  0          // charCode: unsigned long - the Unicode character associated with the depressed key, else 0
+			);
+			
+			keyUp[initMethod](
+			  "keyup",  true, true, window, false, false, false, false, 40,
+			  0);
+			
+
+			setInterval(function(){
+				document.dispatchEvent(keyDown);
+				setTimeout(function(){ 
+					document.dispatchEvent(keyUp);
+				},200);
+			},1200)
+			
 		}
 		
 		function spawn(hnd){
