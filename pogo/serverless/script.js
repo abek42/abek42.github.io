@@ -29,7 +29,7 @@ function init() {
   
   qry = chkQueryVariable("t");
   if(qry){
-	  code = qry.substr(qry.length-6,6);
+	  code = qry;//.substr(qry.length-6,6);
 	  mode="NEW_CODE";
   }
   
@@ -46,7 +46,7 @@ function init() {
 	}  
   }
   else{
-	  if(previousBoard!=code){//old exists, remove and add new if available
+	  if(previousBoard!=code.substr(34,6)){//old exists, remove and add new if available
 		  clearCookie(COOKIE_CFG);
 		  switch(mode){
 			case "NEW_CODE":
