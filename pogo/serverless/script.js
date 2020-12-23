@@ -9,104 +9,60 @@ let ticketState;
 function init() {
   let code;
   let previousBoard = getStoredBoardCode();
-  if (location.search.length == 0) {
-    if (previousBoard == "") {
-      code = prompt("Please enter the board code", "Board");
+  let mode="NO_CODE";
+  
+  if(location.search.length==0){
+	  code = prompt("Please enter the ticket string", "Ticket");
       if (code != "") {
-        getNewTicket(code);
-      } else {
-        alert("Cannot proceed without code");
-        init();
-      }
-    } else {
-      getPrevious();
-    }
-    return;
+	     mode="NEW_CODE";
+	  }
   }
 
-  let qry = chkQueryVariable("new");
+  let qry = chkQueryVariable("clear");
   if (qry) {
-    if (previousBoard == "") {
-      code = prompt("Please enter the board code", "Board");
+	  code = prompt("Please enter new ticket string", "Ticket");
       if (code != "") {
-        getNewTicket(code);
-      } else {
-        alert("Cannot proceed without code");
-        init();
-      }
-      return;
-    } else {
-      clearCookie(COOKIE_CFG);
-      window.location.href = window.location.href.split("?")[0];
-      return;
-    }
-  }
-
-  qry = chkQueryVariable("b");
-  if (qry) {
-    if (qry != "") {
-      //not blank
-      if (previousBoard == "") {
-        getNewTicket(qry);
-        return;
-      } else {
-        //stored board
-        if (qry == previousBoard) {
-          getPrevious();
-        } else {
-          clearCookie(COOKIE_CFG);
-          getNewTicket(qry);
-          return;
-        }
-      }
-    } else {
-      //same as blank
-      if (previousBoard == "") {
-        code = prompt("Please enter the board code", "Board");
-        if (code != "") {
-          getNewTicket(code);
-        } else {
-          alert("Cannot proceed without code");
-          init();
-        }
-      } else {
-        getPrevious();
-      }
-      return;
-    }
+		mode="NEW_CODE";  
+	  }
+	  clearCookie(COOKIE_CFG);
   }
   
-  console.log("shouldn't reach here");
-  window.location.href = window.location.href.split("?")[0]; 
-  /*
-Blank run without search.params
-	>If no stored board
-		>Ask for code
-		>Get board from server
-	>If stored board	
-		>Show stored board
-		
-New
-	>If no stored board
-		>Ask for code	
-		>Get board from server`
-	>If stored board	
-		>Clear stored board
-		>Force reload without search.params
-		
-B=CODE
-	>If no stored board
-		>Get board from server
-	>If stored board
-		>If stored board = code
-			>Show stored board
-		>If stored board != code
-			>Clear stored board
-			>Get board from server
-			
-B=Blank
-	>Same as New
-  */
+  let qry = chkQueryVariable("t");
+  if(qry){
+	  code = qry.substr(qry.length-6,6);
+	  mode="NEW_CODE";
+  }
+  
+  
+  if(previousBoard==""){//no previous board, just
+	switch(mode){
+		case "NEW_CODE":
+			if(!buildTicket(code)){
+				alert("Cannot proceed without valid code");
+			}
+			break;
+		case "NO_CODE":
+			alert("Cannot proceed without valid code");
+	}  
+  }
+  else{
+	  if(previousBoard!=code){//old exists, remove and add new if available
+		  clearCookie(COOKIE_CFG);
+		  switch(mode){
+			case "NEW_CODE":
+				if(!buildTicket(code)){
+					alert("Cannot proceed without valid code");
+				}
+				break;
+			case "NO_CODE":
+				alert("Cannot proceed without valid code");
+			}  
+	  }
+	  else{
+		getPrevious();  
+	  }
+  }
+ 
 }
 
 function getStoredBoardCode() {
@@ -325,3 +281,31 @@ function chkQueryVariable(variable) {
 function hide(self){
   self.parentElement.parentElement.style="display:none;"; 
 }
+
+const buildTicket = winStr => {
+  let str = "";
+  let ticket = {numbers:["","","", "","","", "","","","","","", "","","", "","","","","","", "","","", "","",""],date:""};
+  if(winStr.length!=40) return false;
+  
+  for (let i = 0; i < 30; i += 2) {
+    
+    let pos = strEnc.indexOf(winStr.substr(i,1));
+    let val = strEnc.indexOf(winStr.substr(i+1,1))-27;
+    //str += winStr.substr(i, 1) +pos+ ":"+winStr.substr(i+1,1)+val+",";
+    ticket.numbers[pos]=val+(pos%9)*10;
+    //ticket.numbers[strEnc.indexOf(winStr.substr(i,1))]=strEnc.indexOf(winStr.sub)
+  }
+  let ts = winStr.substr(30,4);
+  ticket.date= ((strEnc.indexOf(ts.substr(0,1))+1)+"").padStart(2,"0")+"-"+(strEnc.indexOf(ts.substr(1,1))+"").padStart(2,"0")+"T"+(strEnc.indexOf(ts.substr(2,1))+"").padStart(2,"0")+":"+(strEnc.indexOf(ts.substr(3,1))+"").padStart(2,"0");
+  //console.log(ticket.date,ticket.numbers.join(","));
+  
+  setByNumbers(ticket.numbers);
+  setClicks();
+  ticketState = ticket;
+  ticketState.clickedCells = [];
+  ticketState.code = code;
+  setTicketCodes(ticketState.code, ticketState.validator);
+  saveCookie(ticketState,COOKIE_CFG);
+  
+  return true;
+};
