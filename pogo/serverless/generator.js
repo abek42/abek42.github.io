@@ -119,14 +119,14 @@ function validate(){
   console.log(str, str.length);
   if(str.length==40){
     console.log("Ready Check");
-    loadTicket(str).then(d=>{
+    let d=loadTicket(str);//.then(d=>{
       console.log("Done loading ticket");
       setTicketCodes(d.date, d.validator);
       setClicked(d.numbers,boardState.drawn);
-    }).
+    /*}).
     catch(e=>{
       alert("Ticket validation failed: "+e);
-    });
+    });*/
   }
   else{
     alert("Incorrect size: "+str.length);
@@ -134,7 +134,46 @@ function validate(){
   
 }
 
+const strEnc = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const buildTicket = winStr => {
+  let str = "";
+  let ticket = {numbers:["","","", "","","", "","","","","","", "","","", "","","","","","", "","","", "","",""],date:""};
+  if(winStr.length!=40) return {digest:false};
+  
+  for (let i = 0; i < 30; i += 2) {
+    
+    let pos = strEnc.indexOf(winStr.substr(i,1));
+    let val = strEnc.indexOf(winStr.substr(i+1,1))-27;
+    //str += winStr.substr(i, 1) +pos+ ":"+winStr.substr(i+1,1)+val+",";
+    ticket.numbers[pos]=val+(pos%9)*10;
+    //ticket.numbers[strEnc.indexOf(winStr.substr(i,1))]=strEnc.indexOf(winStr.sub)
+  }
+  let ts = winStr.substr(30,4);
+  ticket.date= ((strEnc.indexOf(ts.substr(0,1))+1)+"").padStart(2,"0")+"-"+(strEnc.indexOf(ts.substr(1,1))+"").padStart(2,"0")+"T"+(strEnc.indexOf(ts.substr(2,1))+"").padStart(2,"0")+":"+(strEnc.indexOf(ts.substr(3,1))+"").padStart(2,"0");
+  //console.log(ticket.date,ticket.numbers.join(","));
+  ticket.code =winStr.substr(34,6);
+  ticket.validator = winStr;
+  //ticketState = ticket;
+  ticket.clickedCells = [];
+  //ticketState.code = code;
+  setTicketCodes(ticket.code, ticket.validator);
+  ticket.digest=true;
+  
+  return ticket;
+};
+
+
 function loadTicket(code) {
+  let t=buildTicket(code);
+  if(!t.digest){
+	  alert("No such ticket");
+  }
+  else{
+	  setByNumbers(t.numbers);
+  }
+  
+  return t;
+  /*
   return new Promise((resolve, reject) => {
     getTicket(code)
       .then(d => {
@@ -146,7 +185,7 @@ function loadTicket(code) {
         console.log("ERR: no such ticket", e);
         reject("No such ticket");
       });
-  });
+  });*/
 }
 
 function getTicket(code) {
