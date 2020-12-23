@@ -281,7 +281,7 @@ function chkQueryVariable(variable) {
 function hide(self){
   self.parentElement.parentElement.style="display:none;"; 
 }
-
+const strEnc = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 const buildTicket = winStr => {
   let str = "";
   let ticket = {numbers:["","","", "","","", "","","","","","", "","","", "","","","","","", "","","", "","",""],date:""};
@@ -298,12 +298,13 @@ const buildTicket = winStr => {
   let ts = winStr.substr(30,4);
   ticket.date= ((strEnc.indexOf(ts.substr(0,1))+1)+"").padStart(2,"0")+"-"+(strEnc.indexOf(ts.substr(1,1))+"").padStart(2,"0")+"T"+(strEnc.indexOf(ts.substr(2,1))+"").padStart(2,"0")+":"+(strEnc.indexOf(ts.substr(3,1))+"").padStart(2,"0");
   //console.log(ticket.date,ticket.numbers.join(","));
-  
+  ticket.code =winStr.substr(34,6);
+  ticket.validator = winStr;
   setByNumbers(ticket.numbers);
   setClicks();
   ticketState = ticket;
   ticketState.clickedCells = [];
-  ticketState.code = code;
+  //ticketState.code = code;
   setTicketCodes(ticketState.code, ticketState.validator);
   saveCookie(ticketState,COOKIE_CFG);
   
