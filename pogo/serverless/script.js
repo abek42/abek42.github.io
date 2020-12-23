@@ -27,7 +27,7 @@ function init() {
 	  clearCookie(COOKIE_CFG);
   }
   
-  let qry = chkQueryVariable("t");
+  qry = chkQueryVariable("t");
   if(qry){
 	  code = qry.substr(qry.length-6,6);
 	  mode="NEW_CODE";
