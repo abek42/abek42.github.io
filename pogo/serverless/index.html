@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="refreshR" content="0;url=generator.html" />
+    <title>Hello!</title>
+
+    <!-- import the webpage's stylesheet -->
+    <link rel="stylesheet" href="/style.css" />
+    <style></style>
+    <!-- import the webpage's javascript file -->
+    
+    <script src="/stateManager.js"></script>
+    <script src="/sourceMap.js"></script>
+    <script src="/script.js"></script>
+  </head>
+  <body onload="init();">
+    <div class="landscapeAlert">
+      <p>  
+      You seem to be using a mobile-device in portrait mode.<br> 
+      The ticket is best viewed in landscape mode.</p>
+      <p style="text-align:center">
+        <button onclick="hide(this);">
+        OK
+      </button>  
+      </p>
+      
+    </div>
+    <div id="wrapper" class="resWrapper">
+      <div id="header">
+        <h1>Ticket</h1>
+      </div>
+      <div id="ticketWrapper" class="resTicketWrapper">
+        <div id="row1" class="ticketRow resTicketRow">
+          <div class="cell resCell" id="c11">
+            <div class="cellFill show">
+              <span class="num">##</span>
+              <img
+                class="pokemon show"
+                src="https://abek42.github.io/pogo/assets/dunno.png"
+              />
+              <img
+                class="ball hide"
+                src="https://abek42.github.io/pogo/assets/caught.png"
+              />
+              <span class="name">Name</span>
+            </div>
+            <div class="cellEmpty hide">
+              <img
+                class="grass"
+                src="https://abek42.github.io/pogo/assets/grass.png"
+              />
+            </div>
+          </div>
+          <div class="cell resCell" id="c12"></div>
+          <div class="cell resCell" id="c13"></div>
+          <div class="cell resCell" id="c14"></div>
+          <div class="cell resCell" id="c15"></div>
+          <div class="cell resCell" id="c16"></div>
+          <div class="cell resCell" id="c17"></div>
+          <div class="cell resCell" id="c18"></div>
+          <div class="cell resCell" id="c19"></div>
+        </div>
+        <div id="row2" class="ticketRow resTicketRow">
+          <div class="cell resCell" id="c21">
+            <div class="cellFill show">
+              <span class="num">##</span>
+              <img
+                class="pokemon show"
+                src="https://abek42.github.io/pogo/assets/dunno.png"
+              />
+              <img
+                class="ball hide"
+                src="https://abek42.github.io/pogo/assets/caught.png"
+              />
+              <span class="name">Name</span>
+            </div>
+            <div class="cellEmpty hide">
+              <img
+                class="grass"
+                src="https://abek42.github.io/pogo/assets/grass.png"
+              />
+            </div>
+          </div>
+          <div class="cell resCell" id="c22"></div>
+          <div class="cell resCell" id="c23"></div>
+          <div class="cell resCell" id="c24"></div>
+          <div class="cell resCell" id="c25"></div>
+          <div class="cell resCell" id="c26"></div>
+          <div class="cell resCell" id="c27"></div>
+          <div class="cell resCell" id="c28"></div>
+          <div class="cell resCell" id="c29"></div>
+        </div>
+        <div id="row3" class="ticketRow resTicketRow">
+          <div class="cell resCell" id="c31">
+            <div class="cellFill show">
+              <span class="num">##</span>
+              <img
+                class="pokemon show"
+                src="https://abek42.github.io/pogo/assets/dunno.png"
+              />
+              <img
+                class="ball hide"
+                src="https://abek42.github.io/pogo/assets/caught.png"
+              />
+              <span class="name">Name</span>
+            </div>
+            <div class="cellEmpty hide">
+              <img
+                class="grass"
+                src="https://abek42.github.io/pogo/assets/grass.png"
+              />
+            </div>
+          </div>
+          <div class="cell resCell" id="c32"></div>
+          <div class="cell resCell" id="c33"></div>
+          <div class="cell resCell" id="c34"></div>
+          <div class="cell resCell" id="c35"></div>
+          <div class="cell resCell" id="c36"></div>
+          <div class="cell resCell" id="c37"></div>
+          <div class="cell resCell" id="c38"></div>
+          <div class="cell resCell" id="c39"></div>
+        </div>
+      </div>
+      <div id="codes">
+        <div><span>Code:</span><span id="tCode"></span></div>
+        <div><span>Validator:</span><span id="vCode"></span></div>
+      </div>
+    </div>
+  </body>
+</html>
