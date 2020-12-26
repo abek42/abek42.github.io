@@ -1,0 +1,189 @@
+/* CSS files add styling rules to your content */
+
+body {
+  font-size: 0.75em;
+  font-weight: bold;
+  font-family: Tahoma;
+  margin: 2em;
+  display: flex;
+  justify-content: center;
+}
+
+/*body>wrapper*/
+#wrapper {
+  margin: 2em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #cb4154;
+  border-radius: 10px;
+  padding: 0px 10px 0px 10px;
+}
+
+/*body>wrapper>header*/
+h1 {
+  font-style: italic;
+  color: white;
+  margin-left: 5px;
+}
+
+/*body>wrapper>ticketWrapper*/
+#ticketWrapper {
+  border: 2px solid black;
+
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+
+  background-color: white;
+}
+
+#ticketWrapper div.ticketRow:nth-child(odd) {
+  background-color: lightyellow;
+}
+
+/*body>wrapper>ticketWrapper>ticketRow*/
+.ticketRow {
+  flex-grow: 0;
+
+  display: flex;
+  flex-direction: row;
+
+  width: 100%;
+  max-height: 80px;
+}
+
+/*body>wrapper>ticketWrapper>ticketRow>cell*/
+.cell {
+  border: 1px solid grey;
+  max-width: 80px;
+  max-height: 80px;
+  flex-grow: 0;
+  position: relative;
+}
+
+/*body>wrapper>ticketWrapper>ticketRow>cell>children*/
+.cellFill,
+.cellEmpty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/*body>wrapper>ticketWrapper>ticketRow>cell>*/
+.show {
+  /*display: unset;*/
+}
+
+.hide {
+  display: none;
+}
+
+.num {
+  position: absolute;
+  left: 3px;
+  top: 1px;
+}
+
+/*body>wrapper>codes*/
+#codes {
+  margin-top: 0.5em;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-weight: bold;
+  padding: 1px 10px 10px 5px;
+  color: white;
+}
+
+/*RESPONSIVE BITS*/
+
+/*Responsive : body>wrapper>ticketWrapper*/
+.resTicketWrapper {
+  /*responsive bits*/
+  min-height: 240px;
+  max-height: 240px;
+
+  max-width: 738px;
+  min-width: 738px;
+}
+
+.grass {
+  max-width: 64px;
+  align-self: middle;
+}
+
+.resWrapper {
+  max-width: 800px;
+  min-width: 762px;
+}
+
+.resTicketRow {
+  min-height: 80px;
+}
+
+.resCell {
+  min-width: 80px;
+}
+
+.pokemon,
+.ball {
+  max-width: 60px;
+  max-height: 60px;
+}
+
+.landscapeAlert {
+  display: none;
+}
+
+/*show alert if the user is in portrait and low-res screen*/
+
+@media screen and (max-width: 580px) {
+  div.landscapeAlert {
+    display: block;
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    width: calc(100%-20px);
+    z-index: 1;
+    background-color: #eee;
+    height: 100%;
+    padding: 20px;
+    border-radius: 10px;
+  }
+}
+
+@media screen and (max-width: 800px) {
+  .resWrapper {
+    max-width: 572px;
+    min-width: 572px;
+  }
+  /*resize the inner ticket to 540px;*/
+  .resTicketWrapper {
+    min-width: 558px; /*62*9=558*/
+    max-width: 558px;
+    min-height: 186px;
+    max-height: 186px;
+  }
+  .resTicketRow {
+    min-height: 60px;
+  }
+  .resCell {
+    min-width: 60px;
+    max-height: 60px;
+    font-size:0.7em;
+  }
+  .pokemon,
+  .ball {
+    max-width: 48px;
+    max-height: 48px;
+  }
+  .grass {
+    max-width: 48px;
+    align-self: middle;
+  }
+  
+}
