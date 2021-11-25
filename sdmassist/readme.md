@@ -22,7 +22,7 @@ Their website contains the latest state of the runtime and will also provide hel
 
 If you wish, you can access the installer here also:
 1. ***[Windows Installer .exe](./AdobeAIRWINv33.exe)***
-2. ***[Mac Installer package (.dmg)](./AdobeAIRMacv33.dmg)***
+2. ***[Mac Installer package (.dmg)](./AdobeAIRMACv33.dmg)***
 
 ### SDM-Assist Installer Package
 The package is common for both Windows and Mac and can be found here: ***[SDM-Assist Installer](./SDMAssistv0.36.air)***
